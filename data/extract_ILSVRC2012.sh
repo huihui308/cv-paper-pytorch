@@ -9,13 +9,13 @@
 #  https://github.com/facebook/fb.resnet.torch/blob/master/INSTALL.md
 #  https://gist.github.com/BIGBALLON/8a71d225eff18d88e469e6ea9b39cef4
 # 
-#  imagenet/train/
+#  ILSVRC2012/train/
 #  ├── n01440764
 #  │   ├── n01440764_10026.JPEG
 #  │   ├── n01440764_10027.JPEG
 #  │   ├── ......
 #  ├── ......
-#  imagenet/val/
+#  ILSVRC2012/val/
 #  ├── n01440764
 #  │   ├── ILSVRC2012_val_00000293.JPEG
 #  │   ├── ILSVRC2012_val_00002138.JPEG
@@ -25,17 +25,17 @@
 #
 # Make imagnet directory
 #
-mkdir imagenet
+mkdir ILSVRC2012
 #
 # Extract the training data:
 #
 # Create train directory; move .tar file; change directory
-mkdir imagenet/train && mv ILSVRC2012_img_train.tar imagenet/train/ && cd imagenet/train
+mkdir ILSVRC2012/train && mv ILSVRC2012_img_train.tar ILSVRC2012/train/ && cd ILSVRC2012/train
 # Extract training set; remove compressed file
 tar -xvf ILSVRC2012_img_train.tar
 #tar -xvf ILSVRC2012_img_train.tar && rm -f ILSVRC2012_img_train.tar
 #
-# At this stage imagenet/train will contain 1000 compressed .tar files, one for each category
+# At this stage ILSVRC2012/train will contain 1000 compressed .tar files, one for each category
 #
 # For each .tar file: 
 #   1. create directory with same name as .tar file
@@ -45,7 +45,7 @@ find . -name "*.tar" | while read NAME ; do mkdir -p "${NAME%.tar}"; tar -xvf "$
 #
 # This results in a training directory like so:
 #
-#  imagenet/train/
+#  ILSVRC2012/train/
 #  ├── n01440764
 #  │   ├── n01440764_10026.JPEG
 #  │   ├── n01440764_10027.JPEG
@@ -58,14 +58,14 @@ cd ../..
 # Extract the validation data and move images to subfolders:
 #
 # Create validation directory; move .tar file; change directory; extract validation .tar; remove compressed file
-mkdir imagenet/val && mv ILSVRC2012_img_val.tar imagenet/val/ && cd imagenet/val && tar -xvf ILSVRC2012_img_val.tar
-#mkdir imagenet/val && mv ILSVRC2012_img_val.tar imagenet/val/ && cd imagenet/val && tar -xvf ILSVRC2012_img_val.tar && rm -f ILSVRC2012_img_val.tar
+mkdir ILSVRC2012/val && mv ILSVRC2012_img_val.tar ILSVRC2012/val/ && cd ILSVRC2012/val && tar -xvf ILSVRC2012_img_val.tar
+#mkdir ILSVRC2012/val && mv ILSVRC2012_img_val.tar ILSVRC2012/val/ && cd ILSVRC2012/val && tar -xvf ILSVRC2012_img_val.tar && rm -f ILSVRC2012_img_val.tar
 # get script from soumith and run; this script creates all class directories and moves images into corresponding directories
 wget -qO- https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/valprep.sh | bash
 #
 # This results in a validation directory like so:
 #
-#  imagenet/val/
+#  ILSVRC2012/val/
 #  ├── n01440764
 #  │   ├── ILSVRC2012_val_00000293.JPEG
 #  │   ├── ILSVRC2012_val_00002138.JPEG
