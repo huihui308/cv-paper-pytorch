@@ -1,5 +1,6 @@
+#!/usr/bin/env python
+# -*-coding:utf-8 -*-
 import os
-
 import torch
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
