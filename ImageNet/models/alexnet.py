@@ -13,6 +13,7 @@ import torch.utils.model_zoo as model_zoo
 models_dir = os.path.expanduser('~/.torch/models')
 model_name = 'alexnet-owt-4df8aa71.pth'
 
+
 class AlexNet(nn.Module):
     def __init__(self, num_classes=1000):
         super(AlexNet, self).__init__()
