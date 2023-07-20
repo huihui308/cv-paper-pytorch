@@ -14,7 +14,7 @@ models_dir = os.path.expanduser('~/.torch/models')
 model_name = 'overfeatnet-owt-4df8aa71.pth'
 
 
-class OverFeat_fast(nn.Module):
+class overFeat_fast(nn.Module):
     def __init__(self, num_classes=1000):
         super().__init__()
 
@@ -69,7 +69,6 @@ class OverFeat_fast(nn.Module):
             # 8th
             nn.Conv2d(4096, num_classes, 1)
         )
-
         self.init_weight()  # initialize weight
 
     def init_weight(self):
@@ -89,7 +88,7 @@ class OverFeat_fast(nn.Module):
         return self.classifier(x).squeeze()
 
 
-class OverFeat_accurate(nn.Module):
+class overFeat_accurate(nn.Module):
     def __init__(self, num_classes=1000):
         super().__init__()
 
@@ -170,12 +169,12 @@ class OverFeat_accurate(nn.Module):
 
 def overfeatnet_fast(pretrained=False, **kwargs):
     """
-    OverFeat_fast model architecture 
+    overFeat_fast model architecture 
 
     Args:
         pretrained (bool): if True, returns a model pre-trained on ImageNet
     """
-    model = OverFeat_fast(**kwargs)
+    model = overFeat_fast(**kwargs)
     if pretrained:
         # model.load_state_dict(model_zoo.load_url(model_urls['overfeatnet_fast']))
         model.load_state_dict(torch.load(os.path.join(models_dir, model_name)))
@@ -184,12 +183,12 @@ def overfeatnet_fast(pretrained=False, **kwargs):
 
 def overfeatnet_accurate(pretrained=False, **kwargs):
     """
-    OverFeat_fast model architecture 
+    overFeat_fast model architecture 
 
     Args:
         pretrained (bool): if True, returns a model pre-trained on ImageNet
     """
-    model = OverFeat_fast(**kwargs)
+    model = overFeat_fast(**kwargs)
     if pretrained:
         # model.load_state_dict(model_zoo.load_url(model_urls['overfeatnet_accurate']))
         model.load_state_dict(torch.load(os.path.join(models_dir, model_name)))
@@ -208,11 +207,11 @@ if __name__ == '__main__':
     input_size = (3, 231, 231)
     if args.type == "fast":
         print("fast overfeat")
-        model = OverFeat_fast(num_classes=args.num_classes)
+        model = overFeat_fast(num_classes=args.num_classes)
         input_size = (3, 231, 231)
     elif args.type == "accurate":
         print("accurate overfeat")
-        model = OverFeat_accurate(num_classes=args.num_classes)
+        model = overFeat_accurate(num_classes=args.num_classes)
         input_size = (3, 221, 221)
     else:
         print('Input {} not support.'.format(args.type))

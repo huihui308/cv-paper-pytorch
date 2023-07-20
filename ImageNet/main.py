@@ -2,7 +2,7 @@ import argparse
 import os
 import time
 
-import torch
+import torch, torchsummary
 import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data
@@ -13,6 +13,7 @@ from helper import AverageMeter, save_checkpoint, accuracy, adjust_learning_rate
 
 model_names = [
     'alexnet', 'squeezenet1_0', 'squeezenet1_1', 'densenet121',
+    'zfnet', 'zfnet_new', 'overFeat_fast', 'overFeat_accurate',
     'densenet169', 'densenet201', 'densenet201', 'densenet161',
     'vgg11', 'vgg11_bn', 'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn',
     'vgg19', 'vgg19_bn', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
@@ -35,8 +36,8 @@ parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                     help='momentum')
 parser.add_argument('--weight-decay', '--wd', default=1e-4, type=float,
                     metavar='W', help='Weight decay (default: 1e-4)')
-parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
-                    help='number of data loading workers (default: 4)')
+parser.add_argument('-j', '--workers', default=8, type=int, metavar='N',
+                    help='number of data loading workers (default: 8)')
 parser.add_argument('-m', '--pin-memory', dest='pin_memory', action='store_true',
                     help='use pin memory')
 parser.add_argument('-p', '--pretrained', dest='pretrained', action='store_true',
@@ -47,6 +48,8 @@ parser.add_argument('--resume', default='', type=str, metavar='PATH',
                     help='path to latest checkpoitn, (default: None)')
 parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
                     help='evaluate model on validation set')
+parser.add_argument('--num-classes', default=1000, type=int, metavar='N',
+                    help='num classes (default: 1000)')
 
 best_prec1 = 0.0
 
@@ -62,47 +65,48 @@ def main():
         print("=> creating model '{}'".format(args.arch))
 
     if args.arch == 'alexnet':
-        model = alexnet(pretrained=args.pretrained)
+        model = alexnet(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'squeezenet1_0':
-        model = squeezenet1_0(pretrained=args.pretrained)
+        model = squeezenet1_0(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'squeezenet1_1':
-        model = squeezenet1_1(pretrained=args.pretrained)
+        model = squeezenet1_1(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'densenet121':
-        model = densenet121(pretrained=args.pretrained)
+        model = densenet121(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'densenet169':
-        model = densenet169(pretrained=args.pretrained)
+        model = densenet169(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'densenet201':
-        model = densenet201(pretrained=args.pretrained)
+        model = densenet201(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'densenet161':
-        model = densenet161(pretrained=args.pretrained)
+        model = densenet161(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'vgg11':
-        model = vgg11(pretrained=args.pretrained)
+        model = vgg11(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'vgg13':
-        model = vgg13(pretrained=args.pretrained)
+        model = vgg13(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'vgg16':
-        model = vgg16(pretrained=args.pretrained)
+        model = vgg16(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'vgg19':
-        model = vgg19(pretrained=args.pretrained)
+        model = vgg19(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'vgg11_bn':
-        model = vgg11_bn(pretrained=args.pretrained)
+        model = vgg11_bn(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'vgg13_bn':
-        model = vgg13_bn(pretrained=args.pretrained)
+        model = vgg13_bn(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'vgg16_bn':
-        model = vgg16_bn(pretrained=args.pretrained)
+        model = vgg16_bn(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'vgg19_bn':
-        model = vgg19_bn(pretrained=args.pretrained)
+        model = vgg19_bn(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'resnet18':
-        model = resnet18(pretrained=args.pretrained)
+        model = resnet18(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'resnet34':
-        model = resnet34(pretrained=args.pretrained)
+        model = resnet34(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'resnet50':
-        model = resnet50(pretrained=args.pretrained)
+        model = resnet50(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'resnet101':
-        model = resnet101(pretrained=args.pretrained)
+        model = resnet101(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'resnet152':
-        model = resnet152(pretrained=args.pretrained)
+        model = resnet152(pretrained=args.pretrained, num_classes=args.num_classes)
     else:
         raise NotImplementedError
+    torchsummary.summary(model, input_size=(3, 227, 227), batch_size=1, device='cpu')
 
     # use cuda
     model.cuda()

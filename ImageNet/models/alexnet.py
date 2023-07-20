@@ -47,6 +47,12 @@ class AlexNet(nn.Module):
             nn.ReLU(inplace=True),
             nn.Linear(4096, num_classes)
         )
+        self.init_weight()  # initialize weight
+
+    def init_weight(self):
+        for layer in self.features:
+            if isinstance(layer, nn.Conv2d):
+                nn.init.normal_(layer.weight, mean=0, std=0.01)
 
     def forward(self, x):
         x = self.features(x)

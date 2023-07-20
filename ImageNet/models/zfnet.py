@@ -48,6 +48,13 @@ class ZFNet(nn.Module):
             nn.Linear(4096, num_classes)
         )
 
+        self.init_weight()  # initialize weight
+
+    def init_weight(self):
+        for layer in self.features:
+            if isinstance(layer, nn.Conv2d):
+                nn.init.normal_(layer.weight, mean=0, std=0.01)
+
     def forward(self, x):
         x = self.features(x)
         x = x.view(x.size(0), 256 * 6 * 6)
@@ -90,6 +97,12 @@ class ZFNetNew(nn.Module):
 
             nn.Conv2d(in_channels=4096, out_channels=num_classes, kernel_size=1)
         )
+        self.init_weight()  # initialize weight
+
+    def init_weight(self):
+        for layer in self.features:
+            if isinstance(layer, nn.Conv2d):
+                nn.init.normal_(layer.weight, mean=0, std=0.01)
 
     def forward(self, x):
         """
