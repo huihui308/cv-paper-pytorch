@@ -190,3 +190,30 @@ class DenseNet(nn.Module):
         out = F.avg_pool2d(out, kernel_size=7, stride=1).view(features.size(0), -1)
         out = self.classifier(out)
         return out
+
+
+if __name__ == '__main__':
+    import argparse, torchsummary
+
+    parser = argparse.ArgumentParser(description='PyTorch densenet model')
+    parser.add_argument('--type', default='standard', type=str, 
+                    help='densenet type, densenet121, densenet161, densenet169 or densenet201')
+    parser.add_argument('--num_classes', default=1000, type=int, metavar='N',
+                    help='numer of total classed to predict')
+    args = parser.parse_args()
+    if args.type == "densenet121":
+        print("densenet121")
+        model = densenet121(num_classes=args.num_classes)
+    elif args.type == "densenet161":
+        print("densenet161")
+        model = densenet161(num_classes=args.num_classes)
+    elif args.type == "densenet169":
+        print("densenet169")
+        model = densenet169(num_classes=args.num_classes)
+    elif args.type == "densenet201":
+        print("densenet201")
+        model = densenet201(num_classes=args.num_classes)
+    else:
+        print('Input \'{}\' not support.'.format(args.type))
+        os._exit(0)
+    torchsummary.summary(model, input_size=(3, 227, 227), batch_size=1, device='cpu')
