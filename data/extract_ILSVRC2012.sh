@@ -30,10 +30,13 @@ mkdir ILSVRC2012
 # Extract the training data:
 #
 # Create train directory; move .tar file; change directory
-mkdir ILSVRC2012/train && mv ILSVRC2012_img_train.tar ILSVRC2012/train/ && cd ILSVRC2012/train
+mkdir ILSVRC2012/train && tar -xvf ILSVRC2012_img_train.tar -C ./ILSVRC2012/train/ && cd ILSVRC2012/train
+#mkdir ILSVRC2012/train && mv ILSVRC2012_img_train.tar ILSVRC2012/train/ && cd ILSVRC2012/train
+
 # Extract training set; remove compressed file
-tar -xvf ILSVRC2012_img_train.tar
+#tar -xvf ILSVRC2012_img_train.tar
 #tar -xvf ILSVRC2012_img_train.tar && rm -f ILSVRC2012_img_train.tar
+
 #
 # At this stage ILSVRC2012/train will contain 1000 compressed .tar files, one for each category
 #
@@ -58,8 +61,9 @@ cd ../..
 # Extract the validation data and move images to subfolders:
 #
 # Create validation directory; move .tar file; change directory; extract validation .tar; remove compressed file
-mkdir ILSVRC2012/val && mv ILSVRC2012_img_val.tar ILSVRC2012/val/ && cd ILSVRC2012/val && tar -xvf ILSVRC2012_img_val.tar
+mkdir ILSVRC2012/val && tar -xvf ILSVRC2012_img_val.tar -C ./ILSVRC2012/val/ && cd ILSVRC2012/val
 #mkdir ILSVRC2012/val && mv ILSVRC2012_img_val.tar ILSVRC2012/val/ && cd ILSVRC2012/val && tar -xvf ILSVRC2012_img_val.tar && rm -f ILSVRC2012_img_val.tar
+
 # get script from soumith and run; this script creates all class directories and moves images into corresponding directories
 wget -qO- https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/valprep.sh | bash
 #

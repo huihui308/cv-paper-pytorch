@@ -167,7 +167,7 @@ class overFeat_accurate(nn.Module):
         return self.classifier(x).squeeze()
 
 
-def overfeatnet_fast(pretrained=False, **kwargs):
+def overfeat_fast(pretrained=False, **kwargs):
     """
     overFeat_fast model architecture 
 
@@ -181,7 +181,7 @@ def overfeatnet_fast(pretrained=False, **kwargs):
     return model
 
 
-def overfeatnet_accurate(pretrained=False, **kwargs):
+def overfeat_accurate(pretrained=False, **kwargs):
     """
     overFeat_fast model architecture 
 

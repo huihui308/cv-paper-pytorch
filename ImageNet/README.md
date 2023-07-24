@@ -214,6 +214,11 @@ The results of a single model on ILSVRC-2012 validation set.
     </tr>
 </table>
 
+## Command
+```
+$ python3 main.py ./datasets/ILSVRC2012 --batch-size=512 --epochs=500 -a zfnet --lr 0.01 --num-classes=20
+```
+
 ## Acknowledgement
 
 [PyTorch Examples](https://github.com/pytorch/examples/tree/master/imagenet)
