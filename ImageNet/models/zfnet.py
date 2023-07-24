@@ -39,15 +39,15 @@ class ZFNet(nn.Module):
             nn.MaxPool2d(kernel_size=3, stride=2, padding=0) # shape is 6 x 6 x 256
         )
         self.classifier = nn.Sequential(
-            #nn.Dropout(),
+            #nn.Dropout(p=0.5, inplace=False),
             nn.Linear(256 * 6 * 6, 4096),
             nn.ReLU(inplace=True),
-            #nn.Dropout(),
+
+            #nn.Dropout(p=0.5, inplace=False),
             nn.Linear(4096, 4096),
             nn.ReLU(inplace=True),
             nn.Linear(4096, num_classes)
         )
-
         self.init_weight()  # initialize weight
 
     def init_weight(self):

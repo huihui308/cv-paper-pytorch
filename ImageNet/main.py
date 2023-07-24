@@ -66,6 +66,14 @@ def main():
 
     if args.arch == 'alexnet':
         model = alexnet(pretrained=args.pretrained, num_classes=args.num_classes)
+    elif args.arch == 'zfnet':
+        model = zfnet(pretrained=args.pretrained, num_classes=args.num_classes)
+    elif args.arch == 'zfnet_new':
+        model = zfnet_new(pretrained=args.pretrained, num_classes=args.num_classes)
+    elif args.arch == 'overfeat_fast':
+        model = overfeat_fast(pretrained=args.pretrained, num_classes=args.num_classes)
+    elif args.arch == 'overfeat_accurate':
+        model = overfeat_accurate(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'squeezenet1_0':
         model = squeezenet1_0(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'squeezenet1_1':
