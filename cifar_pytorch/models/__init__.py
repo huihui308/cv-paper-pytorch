@@ -16,3 +16,5 @@ from .efficientnet import *
 from .regnet import *
 from .dla_simple import *
 from .dla import *
+from .inception_v2 import inception_v2
+from .inception_v3 import inception_v3
