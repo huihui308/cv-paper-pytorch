@@ -55,8 +55,8 @@ class Stem_v4_Res2(nn.Module):
         out = torch.cat((tmp1, tmp2), 1)
         tmp1 = self.step4_pool(out)
         tmp2 = self.step4_conv(out)
-        print(tmp1.shape)
-        print(tmp2.shape)
+        #print(tmp1.shape)
+        #print(tmp2.shape)
         out = torch.cat((tmp1, tmp2), 1)
         return out
 
@@ -378,6 +378,17 @@ class Inception(nn.Module):
         else:
             self.fc = nn.Linear(2144, num_classes)
 
+        # Official init from torch repo.
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight)
+            elif isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.constant_(m.bias, 0)
+
+
     def __make_inception_A(self):
         layers = []
         if self.version == "v4":
@@ -444,7 +455,7 @@ class Inception(nn.Module):
         out = F.avg_pool2d(out, 8)
         out = F.dropout(out, 0.2, training=self.training)
         out = out.view(out.size(0), -1)
-        print(out.shape)
+        #print(out.shape)
         out = self.fc(out)
         return F.softmax(out, dim=1)
 
