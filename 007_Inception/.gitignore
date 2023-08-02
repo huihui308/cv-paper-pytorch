@@ -1,4 +1,7 @@
 
 save_weights
 *.csv
+checkpoints/
+dataset/
+tblog/
 
