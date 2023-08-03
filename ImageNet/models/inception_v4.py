@@ -460,20 +460,20 @@ class Inception(nn.Module):
         return F.softmax(out, dim=1)
 
 
-def inception_v4(classes=1000):
-    return Inception("v4", classes)
+def inception_v4(pretrained=False, num_classes=1000):
+    return Inception("v4", num_classes)
 
 
-def inception_resnet_v1(classes=1000):
-    return Inception("res1", classes)
+def inception_resnet_v1(pretrained=False, num_classes=1000):
+    return Inception("res1", num_classes)
 
 
-def inception_resnet_v2(classes=1000):
-    return Inception("res2", classes)
+def inception_resnet_v2(pretrained=False, num_classes=1000):
+    return Inception("res2", num_classes)
 
 
 if __name__ == '__main__':
     import argparse, torchsummary
 
-    model = inception_resnet_v2()
+    model = inception_v4(num_classes=20)
     torchsummary.summary(model, input_size=(3, 299, 299), batch_size=1, device='cpu')
