@@ -17,6 +17,12 @@ normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5],
                                   std=[0.5, 0.5, 0.5])
 
 The resize parameter of the validation transform should be 333, and make sure to center crop at 299x299
+
+
+Pre-train model:
+    链接：https://pan.baidu.com/s/19Yyl3g4L_5dStFx6UzT62A 
+    提取码：1234
+    文件：xception-43020ad28.pth
 """
 import math
 import torch.nn as nn
@@ -98,7 +104,6 @@ class Block(nn.Module):
         return x
 
 
-
 class Xception(nn.Module):
     """
     Xception optimized for the ImageNet dataset, as specified in
@@ -147,8 +152,6 @@ class Xception(nn.Module):
 
         self.fc = nn.Linear(2048, num_classes)
 
-
-
         #------- init weights --------
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -158,10 +161,6 @@ class Xception(nn.Module):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
         #-----------------------------
-
-
-
-
 
     def forward(self, x):
         x = self.conv1(x)
@@ -200,7 +199,6 @@ class Xception(nn.Module):
         return x
 
 
-
 def xception(pretrained=False,**kwargs):
     """
     Construct Xception.
@@ -215,5 +213,5 @@ def xception(pretrained=False,**kwargs):
 if __name__ == '__main__':
     import argparse, torchsummary
 
-    model = xception(num_classes=1000)
-    torchsummary.summary(model, input_size=(3, 299, 299), batch_size=1, device='cpu')
+    model = xception(num_classes=20)
+    torchsummary.summary(model, input_size=(3, 32, 32), batch_size=1, device='cpu')
