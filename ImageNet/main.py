@@ -17,7 +17,8 @@ model_names = [
     'densenet169', 'densenet201', 'densenet201', 'densenet161',
     'vgg11', 'vgg11_bn', 'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn',
     'vgg19', 'vgg19_bn', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
-    'resnet152'
+    'resnet152', 
+    'inception_resnet_v1', 'inception_resnet_v2', 'inception_v4'
 ]
 
 parser = argparse.ArgumentParser(description='PyTorch ImageNet Training')
@@ -64,6 +65,7 @@ def main():
     else:
         print("=> creating model '{}'".format(args.arch))
 
+    input_size=(3, 227, 227)
     if args.arch == 'alexnet':
         model = alexnet(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'zfnet':
@@ -112,9 +114,18 @@ def main():
         model = resnet101(pretrained=args.pretrained, num_classes=args.num_classes)
     elif args.arch == 'resnet152':
         model = resnet152(pretrained=args.pretrained, num_classes=args.num_classes)
+    elif args.arch == 'inception_v4':
+        model = inception_v4(pretrained=args.pretrained, num_classes=args.num_classes)
+        input_size=(3, 299, 299)
+    elif args.arch == 'inception_resnet_v1':
+        model = inception_resnet_v1(pretrained=args.pretrained, num_classes=args.num_classes)
+        input_size=(3, 299, 299)
+    elif args.arch == 'inception_resnet_v2':
+        model = inception_resnet_v2(pretrained=args.pretrained, num_classes=args.num_classes)
+        input_size=(3, 299, 299)
     else:
         raise NotImplementedError
-    torchsummary.summary(model, input_size=(3, 227, 227), batch_size=1, device='cpu')
+    torchsummary.summary(model, input_size, batch_size=1, device='cpu')
 
     # use cuda
     model.cuda()
