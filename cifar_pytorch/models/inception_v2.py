@@ -204,12 +204,12 @@ class inception_v2(nn.Module):
     def __init__(self, num_classes = 10):
         super(inception_v2, self).__init__()
         
-        self.conv1 = ConvBlock(3, 32, kernel_size=3, stride=2, padding=0)
+        self.conv1 = ConvBlock(3, 32, kernel_size=3, stride=1, padding=1)
         self.conv2 = ConvBlock(32, 32, kernel_size=3, stride=1, padding=0)
         self.conv3 = ConvBlock(32, 64, kernel_size=3, stride=1, padding=1)
         self.pool1 = nn.MaxPool2d(3, stride=2, padding=0)
         self.conv4 = ConvBlock(64, 80, kernel_size=3, stride=1, padding=0)
-        self.conv5 = ConvBlock(80, 192, kernel_size=3, stride=2, padding=0)
+        self.conv5 = ConvBlock(80, 192, kernel_size=3, stride=1, padding=1)
         self.conv6 = ConvBlock(192, 288, kernel_size=3, stride=1, padding=1)
         
         self.inception3a = InceptionF5(288)
@@ -274,4 +274,4 @@ if __name__ == '__main__':
     import argparse, torchsummary
 
     model = inception_v2()
-    torchsummary.summary(model, input_size=(3, 96, 96), batch_size=1, device='cpu')
+    torchsummary.summary(model, input_size=(3, 32, 32), batch_size=1, device='cpu')
