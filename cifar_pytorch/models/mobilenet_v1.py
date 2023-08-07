@@ -59,3 +59,10 @@ def test():
     print(y.size())
 
 # test()
+
+
+if __name__ == '__main__':
+    import argparse, torchsummary
+
+    model = MobileNet(num_classes=10)
+    torchsummary.summary(model, input_size=(3, 32, 32), batch_size=1, device='cpu')

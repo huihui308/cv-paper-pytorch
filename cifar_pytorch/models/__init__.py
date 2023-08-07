@@ -18,3 +18,5 @@ from .dla_simple import *
 from .dla import *
 from .inception_v2 import inception_v2
 from .inception_v3 import inception_v3
+from .mobilenet_v1 import MobileNet
+from .mobilenet_v2 import MobileNetV2
