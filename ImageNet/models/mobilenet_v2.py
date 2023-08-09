@@ -165,5 +165,5 @@ def mobilenet_v2(pretrained=False, progress=True, **kwargs):
 if __name__ == '__main__':
     import argparse, torchsummary
 
-    model = mobilenet_v2(num_classes=10)
+    model = mobilenet_v2(num_classes=1000)
     torchsummary.summary(model, input_size=(3, 224, 224), batch_size=1, device='cpu')
