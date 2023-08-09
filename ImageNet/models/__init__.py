@@ -9,3 +9,4 @@ from .inception_v3 import inception_v3
 from .inception_v4 import inception_v4, inception_resnet_v1, inception_resnet_v2
 from .xception import xception
 from .mobilenet_v2 import mobilenet_v2
+from .mobilenet_v3 import mobilenetv3_large, mobilenetv3_small
