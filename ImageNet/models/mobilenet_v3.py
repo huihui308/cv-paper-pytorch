@@ -3,6 +3,8 @@ Creates a MobileNetV3 Model as defined in:
 Andrew Howard, Mark Sandler, Grace Chu, Liang-Chieh Chen, Bo Chen, Mingxing Tan, Weijun Wang, Yukun Zhu, Ruoming Pang, Vijay Vasudevan, Quoc V. Le, Hartwig Adam. (2019).
 Searching for MobileNetV3
 arXiv preprint arXiv:1905.02244.
+
+https://github.com/d-li14/mobilenetv3.pytorch/tree/master
 """
 
 import torch.nn as nn
