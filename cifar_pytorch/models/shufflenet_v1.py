@@ -1,4 +1,7 @@
 # encoding: utf-8
+"""
+    https://github.com/eogussla12/Shufflenet_CIFAR10_Pytorch/tree/master
+"""
 import torch
 import torch.nn as nn
 
