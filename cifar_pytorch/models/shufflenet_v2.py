@@ -159,4 +159,12 @@ def test():
     print(y.shape)
 
 
-# test()
+if __name__ == '__main__':
+    import argparse, torchsummary
+
+    print("\nShuffleNetV2 net_size=0.5:")
+    model = ShuffleNetV2(net_size=0.5)
+    torchsummary.summary(model, input_size=(3, 32, 32), batch_size=1, device='cpu')
+    print("\n\nShuffleNetV2 net_size=2:")
+    model = ShuffleNetV2(net_size=2)
+    torchsummary.summary(model, input_size=(3, 32, 32), batch_size=1, device='cpu')

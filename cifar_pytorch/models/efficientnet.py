@@ -172,4 +172,8 @@ def test():
 
 
 if __name__ == '__main__':
-    test()
+    import argparse, torchsummary
+
+    print("\nEfficientNetB0:")
+    model = EfficientNetB0()
+    torchsummary.summary(model, input_size=(3, 32, 32), batch_size=1, device='cpu')
