@@ -109,3 +109,14 @@ def squeezenet1_1(pretrained=False, **kwargs):
     if pretrained:
         model.load_state_dict(torch.load(os.path.join(models_dir, squeeze1_1_model_name)))
     return model
+
+
+if __name__ == '__main__':
+    import argparse, torchsummary
+
+    print("\nsqueezenet1_0:")
+    model = squeezenet1_0(num_classes=1000)
+    torchsummary.summary(model, input_size=(3, 224, 224), batch_size=1, device='cpu')
+    print("\n\nsqueezenet1_1:")
+    model = squeezenet1_1(num_classes=1000)
+    torchsummary.summary(model, input_size=(3, 224, 224), batch_size=1, device='cpu')
