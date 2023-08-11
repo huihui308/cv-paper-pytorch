@@ -42,7 +42,7 @@ class fire(nn.Module):
 
 
 class SqueezeNet(nn.Module):
-    def __init__(self):
+    def __init__(self, num_classes=10):
         super(SqueezeNet, self).__init__()
         self.conv1 = nn.Conv2d(3, 96, kernel_size=3, stride=1, padding=1) # 32
         self.bn1 = nn.BatchNorm2d(96)
@@ -58,9 +58,10 @@ class SqueezeNet(nn.Module):
         self.fire8 = fire(384, 64, 256)
         self.maxpool3 = nn.MaxPool2d(kernel_size=2, stride=2) # 4
         self.fire9 = fire(512, 64, 256)
-        self.conv2 = nn.Conv2d(512, 10, kernel_size=1, stride=1)
+        self.conv2 = nn.Conv2d(512, num_classes, kernel_size=1, stride=1)
         self.avg_pool = nn.AvgPool2d(kernel_size=4, stride=4)
         self.softmax = nn.LogSoftmax(dim=1)
+
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 n = m.kernel_size[0] * m.kernel_size[1] * m.in_channels
@@ -86,6 +87,7 @@ class SqueezeNet(nn.Module):
         x = self.fire9(x)
         x = self.conv2(x)
         x = self.avg_pool(x)
+        x = x.view(x.size(0), -1)
         x = self.softmax(x)
         return x
 
@@ -102,6 +104,7 @@ def squeezenet(pretrained=False):
     # print(out.size())
     return net
 
+
 # if __name__ == '__main__':
 #     squeezenet()
 
@@ -109,6 +112,9 @@ def squeezenet(pretrained=False):
 if __name__ == '__main__':
     import argparse, torchsummary
 
-    print("\nsqueezenet:")
+    print("Input 32x32:")
     model = squeezenet()
     torchsummary.summary(model, input_size=(3, 32, 32), batch_size=1, device='cpu')
+    print("\n\nInput 96x96:")
+    model = squeezenet()
+    torchsummary.summary(model, input_size=(3, 96, 96), batch_size=1, device='cpu')
