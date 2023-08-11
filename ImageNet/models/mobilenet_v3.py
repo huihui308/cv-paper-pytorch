@@ -236,10 +236,10 @@ if __name__ == '__main__':
 
     print("cifar10 small:")
     model = mobilenetv3_small(num_classes=10)
-    torchsummary.summary(model, input_size=(3, 36, 36), batch_size=1, device='cpu')
+    torchsummary.summary(model, input_size=(3, 32, 32), batch_size=1, device='cpu')
     print("\n\ncifar10 large:")
     model = mobilenetv3_large(num_classes=10)
-    torchsummary.summary(model, input_size=(3, 36, 36), batch_size=1, device='cpu')
+    torchsummary.summary(model, input_size=(3, 32, 32), batch_size=1, device='cpu')
 
     print("\n\nImageNet small:")
     model = mobilenetv3_small(num_classes=1000)

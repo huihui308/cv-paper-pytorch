@@ -237,10 +237,10 @@ def effnetv2_xl(**kwargs):
 if __name__ == '__main__':
     import argparse, torchsummary
 
-    print("effnetv2_s:")
+    print("effnetv2_s cifar10:")
     model = effnetv2_s(num_classes=10)
-    torchsummary.summary(model, input_size=(3, 224, 224), batch_size=1, device='cpu')
+    torchsummary.summary(model, input_size=(3, 32, 32), batch_size=1, device='cpu')
 
-    print("\n\neffnetv2_m:")
-    model = effnetv2_m(num_classes=1000)
-    torchsummary.summary(model, input_size=(3, 224, 224), batch_size=1, device='cpu')
+    print("\n\neffnetv2_m cifar10:")
+    model = effnetv2_m(num_classes=10)
+    torchsummary.summary(model, input_size=(3, 32, 32), batch_size=1, device='cpu')
