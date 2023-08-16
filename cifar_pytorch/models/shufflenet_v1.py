@@ -20,6 +20,7 @@ class BasicConv2d(nn.Module):
         x = self.relu(x)
         return x
 
+
 class ChannelShuffle(nn.Module):
 
     def __init__(self, groups):
@@ -36,6 +37,7 @@ class ChannelShuffle(nn.Module):
         x = x.view(batchsize, -1, height, width)
 
         return x
+
 
 class DepthwiseConv2d(nn.Module):
 
@@ -59,6 +61,7 @@ class PointwiseConv2d(nn.Module):
     
     def forward(self, x):
         return self.pointwise(x)
+
 
 class ShuffleNetUnit(nn.Module):
 
@@ -134,6 +137,7 @@ class ShuffleNetUnit(nn.Module):
         output = self.relu(output)
 
         return output
+
 
 class ShuffleNet(nn.Module):
 
