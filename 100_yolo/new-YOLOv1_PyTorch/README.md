@@ -8,6 +8,9 @@ This is a a new version of YOLOv1 built by PyTorch:
 - Backbone: resnet18
 - Head: SPP, SAM
 
+The network architecture:
+![](images/yolov1_new.jpg)
+
 # Train
 - Batchsize: 32
 - Base lr: 1e-3
@@ -75,6 +78,9 @@ You will get a ```VOCdevkit.zip```, then what you need to do is just to unzip it
 # specify a directory for dataset to be downloaded into, else default is ~/data/
 sh data/scripts/VOC2007.sh # <directory>
 ```
+
+You must make the dataste like this:
+![](images/voc_datasets.png)
 
 #### Download VOC2012 trainval
 ```Shell

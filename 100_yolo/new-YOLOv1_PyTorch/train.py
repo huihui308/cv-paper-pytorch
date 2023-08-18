@@ -2,7 +2,7 @@
 # -*-coding:utf-8 -*-
 """
 
-    python3 train.py --cuda --dataset voc --batch_size 32 -ms --max_epoch 300
+    python3 train.py --cuda --dataset voc --batch_size 32 -ms --max_epoch 100
 
 """
 from __future__ import division
