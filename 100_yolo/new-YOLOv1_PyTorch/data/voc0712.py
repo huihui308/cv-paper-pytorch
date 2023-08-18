@@ -1,9 +1,18 @@
+#!/usr/bin/env python
+# -*-coding:utf-8 -*-
 """VOC Dataset Classes
 
 Original author: Francisco Massa
 https://github.com/fmassa/vision/blob/voc_dataset/torchvision/datasets/voc.py
 
 Updated by: Ellis Brown, Max deGroot
+
+    Notice: You must put generate_voc2007_txt.py to '/home/david/dataset/detect/VOC/VOC2007'
+    and then execute:
+        python3 generate_voc2007_txt.py
+    In order to generate trainval.txt, test.txt train.txt and val.txt files.
+
+python3 voc0712.py
 """
 import os.path as osp
 import sys
@@ -28,7 +37,7 @@ VOC_CLASSES = (  # always index 0
 # note: if you used our download scripts, this should be right
 path_to_dir = osp.dirname(osp.abspath(__file__))
 VOC_ROOT = path_to_dir + "/VOCdevkit/"
-VOC_ROOT = "/home/k303/object-detection/dataset/VOCdevkit/"
+VOC_ROOT = "/home/david/dataset/detect/VOC/"
 
 
 class VOCAnnotationTransform(object):
@@ -291,7 +300,8 @@ if __name__ == "__main__":
     dataset = VOCDetection(VOC_ROOT, img_size, [('2007', 'trainval')],
                             BaseTransform([img_size, img_size], (0, 0, 0)),
                             VOCAnnotationTransform(), mosaic=True)
-    for i in range(1000):
+    for i in range(100):
+    #for i in range(1000):
         im, gt, h, w = dataset.pull_item(i)
         img = im.permute(1,2,0).numpy()[:, :, (2, 1, 0)].astype(np.uint8)
         cv2.imwrite('-1.jpg', img)
@@ -304,5 +314,7 @@ if __name__ == "__main__":
             xmax *= img_size
             ymax *= img_size
             img = cv2.rectangle(img, (int(xmin), int(ymin)), (int(xmax), int(ymax)), (0,0,255), 2)
-        cv2.imshow('gt', img)
-        cv2.waitKey(0)
+        #cv2.imshow('gt', img)
+        #cv2.waitKey(0)
+        print('imwrite {} image'.format(i))
+        cv2.imwrite('./result/%d.png' %(i), img, [int(cv2.IMWRITE_JPEG_QUALITY),95])

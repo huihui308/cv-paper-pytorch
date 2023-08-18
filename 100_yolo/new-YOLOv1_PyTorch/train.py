@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# -*-coding:utf-8 -*-
+"""
+
+    python3 train.py --cuda --dataset voc --batch_size 32 -ms --max_epoch 300
+
+"""
 from __future__ import division
 
 import os
@@ -41,6 +48,8 @@ def parse_args():
                         help='The upper bound of warm-up')
     parser.add_argument('--start_epoch', type=int, default=0,
                         help='start epoch to train')
+    parser.add_argument('--max_epoch', type=int, default=160,
+                        help='max epoch to train')
     parser.add_argument('-r', '--resume', default=None, type=str, 
                         help='keep training')
     parser.add_argument('--momentum', default=0.9, type=float, 
@@ -194,15 +203,15 @@ def train():
     # start training loop
     t0 = time.time()
 
-    for epoch in range(args.start_epoch, max_epoch):
+    for epoch in range(args.start_epoch, args.max_epoch):
 
         # use cos lr
-        if args.cos and epoch > 20 and epoch <= max_epoch - 20:
+        if args.cos and epoch > 20 and epoch <= args.max_epoch - 20:
             # use cos lr
-            tmp_lr = 0.00001 + 0.5*(base_lr-0.00001)*(1+math.cos(math.pi*(epoch-20)*1./ (max_epoch-20)))
+            tmp_lr = 0.00001 + 0.5*(base_lr-0.00001)*(1+math.cos(math.pi*(epoch-20)*1./ (args.max_epoch-20)))
             set_lr(optimizer, tmp_lr)
 
-        elif args.cos and epoch > max_epoch - 20:
+        elif args.cos and epoch > args.max_epoch - 20:
             tmp_lr = 0.00001
             set_lr(optimizer, tmp_lr)
         
@@ -262,7 +271,7 @@ def train():
                 t1 = time.time()
                 print('[Epoch %d/%d][Iter %d/%d][lr %.6f]'
                     '[Loss: obj %.2f || cls %.2f || bbox %.2f || total %.2f || size %d || time: %.2f]'
-                        % (epoch+1, max_epoch, iter_i, epoch_size, tmp_lr,
+                        % (epoch+1, args.max_epoch, iter_i, epoch_size, tmp_lr,
                             conf_loss.item(), cls_loss.item(), txtytwth_loss.item(), total_loss.item(), train_size[0], t1-t0),
                         flush=True)
 

@@ -10,6 +10,7 @@ class MSELoss(nn.Module):
     def __init__(self, reduction='mean'):
         super(MSELoss, self).__init__()
         self.reduction = reduction
+
     def forward(self, inputs, targets):
         pos_id = (targets==1.0).float()
         neg_id = (targets==0.0).float()
@@ -61,6 +62,7 @@ def gt_creator(input_size, stride, label_lists=[], name='VOC'):
     ws = w // stride
     hs = h // stride
     s = stride
+    # 而最后一个维度：1+1+4+1，分别是置信度（1）、类别标签（1）、边界框（4）、边界框回归权重（1）
     gt_tensor = np.zeros([batch_size, hs, ws, 1+1+4+1])
 
     # generate gt whose style is yolo-v1
@@ -70,16 +72,12 @@ def gt_creator(input_size, stride, label_lists=[], name='VOC'):
             result = generate_dxdywh(gt_label, w, h, s)
             if result:
                 grid_x, grid_y, tx, ty, tw, th, weight = result
-
-                if grid_x < gt_tensor.shape[2] and grid_y < gt_tensor.shape[1]:
+                if (grid_x < gt_tensor.shape[2]) and (grid_y < gt_tensor.shape[1]):
                     gt_tensor[batch_index, grid_y, grid_x, 0] = 1.0
                     gt_tensor[batch_index, grid_y, grid_x, 1] = gt_class
                     gt_tensor[batch_index, grid_y, grid_x, 2:6] = np.array([tx, ty, tw, th])
                     gt_tensor[batch_index, grid_y, grid_x, 6] = weight
-
-
     gt_tensor = gt_tensor.reshape(batch_size, -1, 1+1+4+1)
-
     return gt_tensor
 
 

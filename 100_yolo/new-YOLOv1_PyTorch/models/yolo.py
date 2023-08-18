@@ -38,13 +38,18 @@ class myYOLO(nn.Module):
     """
         生成一个tensor：grid_xy，每个位置的元素是网格的坐标，
         这一tensor将在获得边界框参数的时候会用到。
+        output: [B, HxW, 2]
     """
     def create_grid(self, input_size):
         w, h = input_size[1], input_size[0]
         # generate grid cells
+        # 特征图的宽和高
         ws, hs = w // self.stride, h // self.stride
+        # 使用torch.meshgrid函数来获得矩阵G的x坐标和y坐标
         grid_y, grid_x = torch.meshgrid([torch.arange(hs), torch.arange(ws)])
+        # 将xy两部分坐标拼在一起，得到矩阵G
         grid_xy = torch.stack([grid_x, grid_y], dim=-1).float()
+        # 最终G矩阵的维度是[1,HxW,2]
         grid_xy = grid_xy.view(1, hs*ws, 2).to(self.device)
         
         return grid_xy
@@ -67,9 +72,11 @@ class myYOLO(nn.Module):
         output box : [xmin, ymin, xmax, ymax]
         """
         output = torch.zeros_like(pred)
+        # 获取bbox的中心点坐标和宽高
         pred[:, :, :2] = torch.sigmoid(pred[:, :, :2]) + self.grid_cell
         pred[:, :, 2:] = torch.exp(pred[:, :, 2:])
 
+        # 由中心点坐标和宽高获得左上角与右下角的坐标
         # [c_x, c_y, w, h] -> [xmin, ymin, xmax, ymax]
         output[:, :, 0] = pred[:, :, 0] * self.stride - pred[:, :, 2] / 2
         output[:, :, 1] = pred[:, :, 1] * self.stride - pred[:, :, 3] / 2
@@ -117,11 +124,13 @@ class myYOLO(nn.Module):
         bbox_pred = all_local
         prob_pred = all_conf
 
+        # 首先进行阈值筛选，滤除那些得分低的检测框
         cls_inds = np.argmax(prob_pred, axis=1)
         prob_pred = prob_pred[(np.arange(prob_pred.shape[0]), cls_inds)]
         scores = prob_pred.copy()
         
         # threshold
+        # 对每一类去进行NMS惭怍
         keep = np.where(scores >= self.conf_thresh)
         bbox_pred = bbox_pred[keep]
         scores = scores[keep]
@@ -138,6 +147,7 @@ class myYOLO(nn.Module):
             c_keep = self.nms(c_bboxes, c_scores)
             keep[inds[c_keep]] = 1
 
+        # 获得最终的检测结果
         keep = np.where(keep > 0)
         bbox_pred = bbox_pred[keep]
         scores = scores[keep]
@@ -181,15 +191,19 @@ class myYOLO(nn.Module):
         if not self.trainable:
             with torch.no_grad():
                 # batch size = 1
+                # 测试时，笔者默认batch是1，因此，我们不需要用batch这个维度，用[0]将其取走。
+                # [B, H*W, 1] -> [H*W, 1]
                 all_conf = torch.sigmoid(conf_pred)[0]           # 0 is because that these is only 1 batch.
+                # [B, H*W, 4] -> [H*W, 4]
                 all_bbox = torch.clamp((self.decode_boxes(txtytwth_pred) / self.scale_torch)[0], 0., 1.)
+                # [B, H*W, 1] -> [H*W, 1]，得分=<类别置信度>乘以<objectness置信度>
                 all_class = (torch.softmax(cls_pred[0, :, :], 1) * all_conf)
-                
+
                 # separate box pred and class conf
                 all_conf = all_conf.to('cpu').numpy()
                 all_class = all_class.to('cpu').numpy()
                 all_bbox = all_bbox.to('cpu').numpy()
-                
+
                 bboxes, scores, cls_inds = self.postprocess(all_bbox, all_class)
 
                 return bboxes, scores, cls_inds
