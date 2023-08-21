@@ -15,12 +15,11 @@ Updated by: Ellis Brown, Max deGroot
     python3 voc0712.py
 """
 import os.path as osp
-import sys
 import torch
 import torch.utils.data as data
 import cv2
 import numpy as np
-import random
+import os, sys, random
 
 if sys.version_info[0] == 2:
     import xml.etree.cElementTree as ET
@@ -300,6 +299,11 @@ if __name__ == "__main__":
     dataset = VOCDetection(VOC_ROOT, img_size, [('2007', 'trainval')],
                             BaseTransform([img_size, img_size], (0, 0, 0)),
                             VOCAnnotationTransform(), mosaic=True)
+
+    img_save_path = './result'
+    if not os.path.exists(img_save_path):
+        print('Make directory: {}'.format(img_save_path))
+        os.makedirs(img_save_path)
     for i in range(100):
     #for i in range(1000):
         im, gt, h, w = dataset.pull_item(i)
@@ -317,4 +321,4 @@ if __name__ == "__main__":
         #cv2.imshow('gt', img)
         #cv2.waitKey(0)
         print('imwrite {} image'.format(i))
-        cv2.imwrite('./result/%d.png' %(i), img, [int(cv2.IMWRITE_JPEG_QUALITY),95])
+        cv2.imwrite(img_save_path + '/%d.png' %(i), img, [int(cv2.IMWRITE_JPEG_QUALITY),95])
