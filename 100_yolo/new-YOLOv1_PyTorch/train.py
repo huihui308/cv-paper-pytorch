@@ -203,6 +203,7 @@ def train():
     # start training loop
     t0 = time.time()
 
+    # 开始训练
     for epoch in range(args.start_epoch, args.max_epoch):
 
         # use cos lr
@@ -221,7 +222,7 @@ def train():
                 tmp_lr = tmp_lr * 0.1
                 set_lr(optimizer, tmp_lr)
     
-
+        # 获取一批数据
         for iter_i, (images, targets) in enumerate(dataloader):
             # WarmUp strategy for learning rate
             if not args.no_warm_up:

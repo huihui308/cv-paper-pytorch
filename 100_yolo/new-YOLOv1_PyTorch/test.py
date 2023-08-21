@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# -*-coding:utf-8 -*-
+"""
+
+    python3 test.py --cuda -d voc --trained_model weights/voc/yolo/yolo_300.pth
+
+"""
 import os
 import argparse
 import torch
@@ -60,6 +67,10 @@ def vis(img, bboxes, scores, cls_inds, thresh, class_colors, class_names, class_
 
 def test(net, device, testset, transform, thresh, class_colors=None, class_names=None, class_indexs=None, dataset='voc'):
     num_images = len(testset)
+    img_save_path = './test_images/' + dataset + '/3'
+    if not os.path.exists(img_save_path):
+        print('Make directory: {}'.format(img_save_path))
+        os.makedirs(img_save_path)
     for index in range(num_images):
         print('Testing image {:d}/{:d}....'.format(index+1, num_images))
         img, _ = testset.pull_image(index)
@@ -80,10 +91,10 @@ def test(net, device, testset, transform, thresh, class_colors=None, class_names
         bboxes *= scale
 
         img_processed = vis(img, bboxes, scores, cls_inds, thresh, class_colors, class_names, class_indexs, dataset)
-        cv2.imshow('detection', img_processed)
-        cv2.waitKey(0)
-        # print('Saving the' + str(index) + '-th image ...')
-        # cv2.imwrite('test_images/' + args.dataset+ '3/' + str(index).zfill(6) +'.jpg', img)
+        #cv2.imshow('detection', img_processed)
+        #cv2.waitKey(0)
+        print('Saving the' + str(index) + '-th image ...')
+        cv2.imwrite(img_save_path + '/' + str(index).zfill(6) +'.jpg', img)
 
 
 if __name__ == '__main__':

@@ -12,7 +12,7 @@ Updated by: Ellis Brown, Max deGroot
         python3 generate_voc2007_txt.py
     In order to generate trainval.txt, test.txt train.txt and val.txt files.
 
-python3 voc0712.py
+    python3 voc0712.py
 """
 import os.path as osp
 import sys
