@@ -1,6 +1,9 @@
+#!/usr/bin/env python
+# -*-coding:utf-8 -*-
 """
     python3 train.py --cuda -ms
     python3 train.py --cuda -ms -d coco
+    python3 train.py --cuda --batch_size 8 --version yolov3 -root /home/david/dataset/detect/VOC/ --dataset voc --multi_scale --mosaic --max_epoch 3
 """
 from __future__ import division
 
@@ -46,6 +49,8 @@ def parse_args():
                         help='The upper bound of warm-up')
     parser.add_argument('--start_epoch', type=int, default=0,
                         help='start epoch to train')
+    parser.add_argument('--max_epoch', type=int, default=160,
+                        help='max epoch to train')
     parser.add_argument('-r', '--resume', default=None, type=str, 
                         help='keep training')
     parser.add_argument('--momentum', default=0.9, type=float, 
@@ -162,7 +167,7 @@ def train():
 
     # dataset and evaluator
     if args.dataset == 'voc':
-        data_dir = os.path.join(args.data_root, 'VOCdevkit')
+        data_dir = os.path.join(args.data_root, '')
         num_classes = 20
         dataset = VOCDetection(data_dir=data_dir, 
                                 transform=SSDAugmentation(train_size))
@@ -281,6 +286,7 @@ def train():
                             )
 
     max_epoch = cfg['max_epoch']
+    max_epoch = args.max_epoch
     epoch_size = len(dataloader)
     best_map = -1.
     warmup = not args.no_warmup

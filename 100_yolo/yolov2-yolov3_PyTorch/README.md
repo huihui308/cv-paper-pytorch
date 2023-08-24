@@ -23,6 +23,14 @@ In this project, you can enjoy:
 - YOLOv3-Spp
 - YOLOv3-Tiny
 
+# Architecture
+
+- yolov2
+![](img_file/yolov2.jpg)
+
+- yolov3
+![](img_file/yolov3.jpg)
+
 
 I just want to provide a good YOLO project for everyone who is interested in Object Detection.
 
@@ -168,6 +176,9 @@ Link：https://pan.baidu.com/s/1tYPGCYGyC0wjpC97H-zzMQ
 Password：4la9
 
 You will get a ```VOCdevkit.zip```, then what you need to do is just to unzip it and put it into ```data/```. After that, the whole path to VOC dataset is ```data/VOCdevkit/VOC2007``` and ```data/VOCdevkit/VOC2012```.
+
+You must make the dataste like this:
+![](img_file/voc_datasets.png)
 
 ### Download VOC2007 trainval & test
 

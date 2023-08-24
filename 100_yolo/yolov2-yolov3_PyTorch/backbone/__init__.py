@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*-coding:utf-8 -*-
 from .resnet import build_resnet
 from .darknet19 import build_darknet19
 from .darknet53 import build_darknet53
