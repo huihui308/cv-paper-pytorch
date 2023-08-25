@@ -32,6 +32,7 @@ from utils.augmentations import SSDAugmentation, ColorAugmentation
 from utils.cocoapi_evaluator import COCOAPIEvaluator
 from utils.vocapi_evaluator import VOCAPIEvaluator
 from utils.modules import ModelEMA
+from utils.yolo_logging import Logger
 
 
 def parse_args():
@@ -67,7 +68,7 @@ def parse_args():
                         help='Gamma update for SGD')
     parser.add_argument('--vis', action='store_true', default=False,
                         help='visualize target.')
-    parser.add_argument('--log_dir', default='./log', type=str, 
+    parser.add_argument('--log_dir', default='./logs', type=str, 
                         help='Log dir')
 
     # model
@@ -108,11 +109,12 @@ def train():
 
     if not os.path.exists(args.log_dir):
         os.makedirs(args.log_dir)
-    logging.config.fileConfig('./utils/logging.conf')
-    logger = logging.getLogger('fileLog01')
-    logger.debug('log start')
-    logger.debug('Setting Arguments.. : {}'.format(args))
-    logger.debug("----------------------------------------------------------")
+    #logging.config.fileConfig('./utils/logging.conf')
+    #logger = logging.getLogger('fileLog01')
+    #print(args.log_dir + "/master.log")
+    logger = Logger(name=args.log_dir + "/master.log", log_level=logging.DEBUG)
+    logger.info('log start')
+    logger.info('Setting Arguments.. : {}'.format(args))
 
     # set distributed
     logger.debug('World size: {}'.format(distributed_utils.get_world_size()))
@@ -122,14 +124,15 @@ def train():
 
     # cuda
     if args.cuda:
-        print('use cuda')
+        logger.info('use cuda')
         # cudnn.benchmark = True
         device = torch.device("cuda")
     else:
+        logger.info('use cpu')
         device = torch.device("cpu")
 
     model_name = args.version
-    print('Model: ', model_name)
+    logger.debug('Model: {}'.format(model_name))
 
     # load model and config file
     if model_name == 'yolov2_d19':
