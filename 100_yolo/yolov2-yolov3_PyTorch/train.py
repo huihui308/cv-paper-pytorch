@@ -7,13 +7,11 @@
 """
 from __future__ import division
 
-import os
-import random
-import argparse
-import time
 import cv2
+import logging.config
 import numpy as np
 from copy import deepcopy
+import os, random, argparse, time
 
 import torch
 import torch.optim as optim
@@ -69,6 +67,8 @@ def parse_args():
                         help='Gamma update for SGD')
     parser.add_argument('--vis', action='store_true', default=False,
                         help='visualize target.')
+    parser.add_argument('--log_dir', default='./log', type=str, 
+                        help='Log dir')
 
     # model
     parser.add_argument('-v', '--version', default='yolo_v2',
@@ -105,14 +105,20 @@ def parse_args():
 
 def train():
     args = parse_args()
-    print("Setting Arguments.. : ", args)
-    print("----------------------------------------------------------")
+
+    if not os.path.exists(args.log_dir):
+        os.makedirs(args.log_dir)
+    logging.config.fileConfig('./utils/logging.conf')
+    logger = logging.getLogger('fileLog01')
+    logger.debug('log start')
+    logger.debug('Setting Arguments.. : {}'.format(args))
+    logger.debug("----------------------------------------------------------")
 
     # set distributed
-    print('World size: {}'.format(distributed_utils.get_world_size()))
+    logger.debug('World size: {}'.format(distributed_utils.get_world_size()))
     if args.distributed:
         distributed_utils.init_distributed_mode(args)
-        print("git:\n  {}\n".format(distributed_utils.get_sha()))
+        logger.debug("git:\n  {}\n".format(distributed_utils.get_sha()))
 
     # cuda
     if args.cuda:
