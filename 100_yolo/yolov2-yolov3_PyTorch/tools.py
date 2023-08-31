@@ -261,6 +261,7 @@ def multi_gt_creator(input_size, strides, label_lists, anchor_size):
     anchor_number = len(all_anchor_size) // num_scale
 
     for s in strides:
+        # 1+1+4+1+4: 每个边界框的置信度（1）、类别序号（1）、边界框位置参数（4）、边界框的权重（1）以及真实框的坐标信息（4）
         gt_tensor.append(np.zeros([batch_size, h//s, w//s, anchor_number, 1+1+4+1+4]))
         
     # generate gt datas    
@@ -395,7 +396,9 @@ def iou_score(bboxes_a, bboxes_b):
 def loss(pred_conf, pred_cls, pred_txtytwth, pred_iou, label):
     # loss func
     conf_loss_function = MSEWithLogitsLoss(reduction='mean')
+    # PyTorch提供的cross entropy损失函数已经内置了softmax操作，因此不需要单独使用softmax函数对类别预测做一次处理
     cls_loss_function = nn.CrossEntropyLoss(reduction='none')
+    # PyTorch提供的binary entropy函数已经内置了sigmoid操作，所以不需要单独用sigmoid对tx, txy进行处理
     txty_loss_function = nn.BCEWithLogitsLoss(reduction='none')
     twth_loss_function = nn.MSELoss(reduction='none')
     iou_loss_function = nn.SmoothL1Loss(reduction='none')

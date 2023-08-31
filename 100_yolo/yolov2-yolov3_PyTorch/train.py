@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*-coding:utf-8 -*-
 """
     python3 train.py --cuda -ms
@@ -11,7 +11,7 @@ import cv2
 import logging.config
 import numpy as np
 from copy import deepcopy
-import os, random, argparse, time
+import os, sys, datetime, signal, random, argparse, time
 
 import torch
 import torch.optim as optim
@@ -33,6 +33,12 @@ from utils.cocoapi_evaluator import COCOAPIEvaluator
 from utils.vocapi_evaluator import VOCAPIEvaluator
 from utils.modules import ModelEMA
 from utils.yolo_logging import Logger
+
+
+def TermSigHandler(signum, frame):
+    sys.stdout.write('\r>> {}: catched singal:{}\n'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), signum))
+    sys.stdout.flush()
+    os._exit(0)
 
 
 def parse_args():
@@ -132,9 +138,8 @@ def train():
         device = torch.device("cpu")
 
     model_name = args.version
-    logger.debug('Model: {}'.format(model_name))
-
     # load model and config file
+    logger.info('model_name is {}'.format(model_name))
     if model_name == 'yolov2_d19':
         from models.yolov2_d19 import YOLOv2D19 as yolo_net
         cfg = config.yolov2_d19_cfg
@@ -155,7 +160,7 @@ def train():
         from models.yolov3_tiny import YOLOv3tiny as yolo_net
         cfg = config.yolov3_tiny_cfg
     else:
-        print('Unknown model name...')
+        logger.error('Unknown model name...')
         exit(0)
 
     # path to save model
@@ -164,7 +169,7 @@ def train():
     
     # multi-scale
     if args.multi_scale:
-        print('use the multi-scale trick ...')
+        logger.info('use the multi-scale trick ...')
         train_size = cfg['train_size']
         val_size = cfg['val_size']
     else:
@@ -172,10 +177,11 @@ def train():
 
     # Model ENA
     if args.ema:
-        print('use EMA trick ...')
+        logger.info('use EMA trick ...')
 
     # dataset and evaluator
     if args.dataset == 'voc':
+        logger.info('dataset is voc')
         data_dir = os.path.join(args.data_root, '')
         num_classes = 20
         dataset = VOCDetection(data_dir=data_dir, 
@@ -187,6 +193,7 @@ def train():
                                     transform=BaseTransform(val_size))
 
     elif args.dataset == 'coco':
+        logger.info('dataset is coco')
         data_dir = os.path.join(args.data_root, 'COCO')
         num_classes = 80
         dataset = COCODataset(
@@ -200,12 +207,12 @@ def train():
                         transform=BaseTransform(val_size))
     
     else:
-        print('unknow dataset !! Only support voc and coco !!')
+        logger.error('unknow dataset !! Only support voc and coco !!')
         exit(0)
     
-    print('Training model on:', dataset.name)
-    print('The dataset size:', len(dataset))
-    print("----------------------------------------------------------")
+    logger.info('Training model on:{}'.format(dataset.name))
+    logger.info('The dataset size:{}'.format(len(dataset)))
+    logger.info("----------------------------------------------------------")
 
     # build model
     anchor_size = cfg['anchor_size_voc'] if args.dataset == 'voc' else cfg['anchor_size_coco']
@@ -219,7 +226,7 @@ def train():
 
     # SyncBatchNorm
     if args.sybn and args.distributed:
-        print('use SyncBatchNorm ...')
+        logger.info('use SyncBatchNorm ...')
         model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
 
     # DDP
@@ -269,7 +276,7 @@ def train():
 
     # keep training
     if args.resume is not None:
-        print('keep training model: %s' % (args.resume))
+        logger.info('keep training model:{}'.format((args.resume)))
         model.load_state_dict(torch.load(args.resume, map_location=device))
 
     # EMA
@@ -277,7 +284,7 @@ def train():
 
     # use tfboard
     if args.tfboard:
-        print('use tensorboard')
+        logger.info('use tensorboard')
         from torch.utils.tensorboard import SummaryWriter
         c_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
         log_path = os.path.join('log/', args.dataset, c_time)
@@ -301,7 +308,7 @@ def train():
     warmup = not args.no_warmup
 
     t0 = time.time()
-    # start training loop
+    logger.info('start training loop')
     for epoch in range(args.start_epoch, max_epoch):
         if args.distributed:
             dataloader.sampler.set_epoch(epoch)        
@@ -377,7 +384,7 @@ def train():
 
             # check NAN for loss
             if torch.isnan(total_loss):
-                print('loss is nan !!')
+                logger.warning('loss is nan !!')
                 continue
 
             # backprop
@@ -413,7 +420,7 @@ def train():
                 log += '[size: {}]'.format(train_size)
 
                 # print log infor
-                print(log, flush=True)
+                logger.info(log)
                 
                 t0 = time.time()
 
@@ -427,14 +434,14 @@ def train():
 
                 # check evaluator
                 if evaluator is None:
-                    print('No evaluator ... save model and go on training.')
-                    print('Saving state, epoch: {}'.format(epoch + 1))
+                    logger.info('No evaluator ... save model and go on training.')
+                    logger.info('Saving state, epoch: {}'.format(epoch + 1))
                     weight_name = '{}_epoch_{}.pth'.format(args.version, epoch + 1)
                     checkpoint_path = os.path.join(path_to_save, weight_name)
                     torch.save(model_eval.state_dict(), checkpoint_path)                      
             
                 else:
-                    print('eval ...')
+                    logger.debug('eval ...')
                     # set eval mode
                     model_eval.trainable = False
                     model_eval.set_grid(val_size)
@@ -448,7 +455,7 @@ def train():
                         # update best-map
                         best_map = cur_map
                         # save model
-                        print('Saving state, epoch:', epoch + 1)
+                        logger.info('Saving state, epoch:', epoch + 1)
                         weight_name = '{}_epoch_{}_{:.2f}.pth'.format(args.version, epoch + 1, best_map*100)
                         checkpoint_path = os.path.join(path_to_save, weight_name)
                         torch.save(model_eval.state_dict(), checkpoint_path)  
@@ -503,4 +510,5 @@ def vis_data(images, targets, input_size):
 
 
 if __name__ == '__main__':
+    signal.signal(signal.SIGINT, TermSigHandler)
     train()

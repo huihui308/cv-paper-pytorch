@@ -2,8 +2,7 @@
 #
 #   https://www.cnblogs.com/eliwang/p/16708787.html
 #
-import logging
-import colorlog
+import logging, colorlog
 
 
 class Logger:
@@ -16,9 +15,9 @@ class Logger:
 
         # 日志格化字符串
         #console_fmt = '%(log_color)s%(asctime)s-%(threadName)s-%(filename)s-[line:%(lineno)d]-%(levelname)s: %(message)s'
-        console_fmt = '%(log_color)s%(asctime)s %(filename)s [line:%(lineno)d] %(levelname)s: %(message)s'
+        console_fmt = '%(log_color)s%(asctime)s %(levelname)s: %(message)s'
         #file_fmt = '%(asctime)s-%(threadName)s-%(filename)s-[line:%(lineno)d]-%(levelname)s: %(message)s'
-        file_fmt = '%(asctime)s %(filename)s [line:%(lineno)d] %(levelname)s: %(message)s'
+        file_fmt = '%(asctime)s %(levelname)s: %(message)s'
 
         # 控制台输出不同级别日志颜色设置
         color_config = {
