@@ -2,14 +2,14 @@
 from .data_config.dataset_config import dataset_cfg
 
 
-def build_dataset_config(args):
+def build_dataset_config(args, logger):
     if args.dataset in ['coco', 'coco-val', 'coco-test']:
         cfg = dataset_cfg['coco']
     else:
         cfg = dataset_cfg[args.dataset]
 
-    print('==============================')
-    print('Dataset Config: {} \n'.format(cfg))
+    logger.info('==============================')
+    logger.info('Dataset Config: {} \n'.format(cfg))
 
     return cfg
 

@@ -1,6 +1,14 @@
+#!/usr/bin/env python3
+# -*-coding:utf-8 -*-
+"""
+    python3 train.py --cuda -ms
+    python3 train.py --cuda -ms -d coco
+    python3 train.py --cuda --batch_size 8 --version yolov3 -root /home/david/dataset/detect/VOC/ --dataset voc --multi_scale --mosaic --max_epoch 3
+"""
 from __future__ import division
 
-import argparse
+import logging.config
+import os, signal, argparse
 from copy import deepcopy
 
 # ----------------- Torch Components -----------------
@@ -11,6 +19,8 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 # ----------------- Extra Components -----------------
 from utils import distributed_utils
 from utils.misc import compute_flops
+from utils.yolo_logging import Logger
+from utils.term_sig_handle import term_sig_handler
 
 # ----------------- Config Components -----------------
 from config import build_dataset_config, build_model_config, build_trans_config
@@ -43,7 +53,9 @@ def parse_args():
                         help="visualize training data.")
     parser.add_argument('--vis_aux_loss', action="store_true", default=False,
                         help="visualize aux loss.")
-    
+    parser.add_argument('--log_dir', default='./logs', type=str, 
+                        help='Log dir')
+
     # Batchsize
     parser.add_argument('-bs', '--batch_size', default=16, type=int, 
                         help='batch size on all the GPUs.')
@@ -109,32 +121,41 @@ def parse_args():
 
 def train():
     args = parse_args()
-    print("Setting Arguments.. : ", args)
-    print("----------------------------------------------------------")
 
+    if not os.path.exists(args.log_dir):
+        os.makedirs(args.log_dir)
+    #logging.config.fileConfig('./utils/logging.conf')
+    #logger = logging.getLogger('fileLog01')
+    #print(args.log_dir + "/master.log")
+    logger = Logger(name=args.log_dir + "/master.log", log_level=logging.DEBUG)
+
+    logger.info("Setting Arguments.. : {}".format(args))
+    logger.info("----------------------------------------------------------")
     # Build DDP
     if args.distributed:
         distributed_utils.init_distributed_mode(args)
-        print("git:\n  {}\n".format(distributed_utils.get_sha()))
+        logger.info("git:\n  {}\n".format(distributed_utils.get_sha()))
     world_size = distributed_utils.get_world_size()
-    print('World size: {}'.format(world_size))
+    logger.info('World size: {}'.format(world_size))
 
     # Build CUDA
     if args.cuda:
-        print('use cuda')
+        logger.info('use cuda')
         # cudnn.benchmark = True
         device = torch.device("cuda")
     else:
+        logger.info('use cpu')
         device = torch.device("cpu")
 
     # Build Dataset & Model & Trans. Config
-    data_cfg = build_dataset_config(args)
+    data_cfg = build_dataset_config(args, logger)
     model_cfg = build_model_config(args)
     trans_cfg = build_trans_config(model_cfg['trans_type'])
 
     # Build Model
     model, criterion = build_model(args, model_cfg, device, data_cfg['num_classes'], True)
 
+    return
     # Keep training
     if distributed_utils.is_main_process and args.resume is not None:
         print('keep training: ', args.resume)
@@ -183,5 +204,7 @@ def train():
     if args.cuda:
         torch.cuda.empty_cache()
 
+
 if __name__ == '__main__':
+    signal.signal(signal.SIGINT, term_sig_handler)
     train()
