@@ -35,7 +35,7 @@ from utils.modules import ModelEMA
 from utils.yolo_logging import Logger
 
 
-def TermSigHandler(signum, frame):
+def term_sig_handler(signum, frame):
     sys.stdout.write('\r>> {}: catched singal:{}\n'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), signum))
     sys.stdout.flush()
     os._exit(0)
@@ -510,5 +510,5 @@ def vis_data(images, targets, input_size):
 
 
 if __name__ == '__main__':
-    signal.signal(signal.SIGINT, TermSigHandler)
+    signal.signal(signal.SIGINT, term_sig_handler)
     train()

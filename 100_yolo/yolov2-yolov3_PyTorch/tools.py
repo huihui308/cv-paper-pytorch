@@ -393,6 +393,23 @@ def iou_score(bboxes_a, bboxes_b):
     return area_i / (area_a + area_b - area_i + 1e-14)
 
 
+"""
+    BCE和CE的区别
+    首先需要说明的是PyTorch里面的BCELoss和CrossEntropyLoss都是交叉熵，数学本质上是没有区别的，区别在于应用中的细节。
+    BCE应用在“是不是”问题上，CE应用在“是哪个”问题上
+
+    BCE用于二分类，CE用于多分类
+    BCE适用于0/1二分类，计算公式就是 “ -ylog(y^hat) - (1-y)log(1-y^hat) ”，其中y为GT，y_hat为预测值。这样，当gt为0的时候，公式前半部分为0，y^hat 需要尽可能为0才能使后半部分数值更小；当gt为1时，后半部分为0，y^hat 需要尽可能为1才能使前半部分的值更小，这样就达到了让y^hat尽量靠近gt的预期效果。当然，显然这要求输入必须在0-1之间，所以为了让网络的输出确保在0-1之间，我们一般都会加一个Sigmoid，而更具体一点来说，使用BCELoss的话只需要网络输出一个节点即可，不像CE Loss那样，往往是有n_class个类就需要网络最终输出n_class个节点。
+
+    而CE因为需要用在多分类上，所以计算公式就变成了sum(-ylog(y^hat))。可能有些同学很敏锐的发现了，这个函数实际上只是在对相应gt=1的那个节点的值做约束，希望这一点的输出能尽量为1；而其他原本gt为0的节点因为y=0，在计算到sum中的时候无论其相应输出节点是多少都没有关系，那这是不是意味着CE的公式还有漏洞呢？话虽这么说，但其实是因为我们忘记了CE之前还有Softmax这个函数，这个函数会让输入的n_class个节点中大的更大，小的更小，并且可以确保最终所有节点的输出的总和为1，这样一来只要对应gt=1的那个节点输出足够靠近1，其他的节点自然输出就会趋近于0了。
+
+    因为多标签分类中有多个类别，不能单纯的输出一个值，而是应该输出一个向量，并且也不能继续将输出简单的用Softmax归一化到[0, 1]的概率值，且各类别的概率相加为1。因为各类别之间不是互斥的，允许同时出现。我们可以用sigmoid激活函数分别将输出向量的每个元素转换为概率值。
+    对于损失函数，比较简单的思路就是对输出向量的每个元素单独使用交叉熵损失函数，然后计算平均值。这就是我们今天要说的BCE。看一下Pytorch官方源码的实现方式就知道了。
+
+    总结
+    上面的两个例子都是在分类任务中说的，而在分割任务中，BCE和CE的另一个区别就可以说是，BCE只需要输出一个通道，而CE需要输出n_class个通道。
+    Sigmoid的输出为伯努利分布，也就是我们常说的二项分布；而Softmax的输出表示为多项式分布。所以Sigmoid通常用于二分类，Softmax用于多类别分类。
+"""
 def loss(pred_conf, pred_cls, pred_txtytwth, pred_iou, label):
     # loss func
     conf_loss_function = MSEWithLogitsLoss(reduction='mean')
@@ -446,4 +463,4 @@ if __name__ == "__main__":
                              [0.0, 0.0, 16, 16]
                              ])
     iou = compute_iou(anchor_boxes, gt_box)
-    print(iou)
+    print('iou: {}'.format(iou))
