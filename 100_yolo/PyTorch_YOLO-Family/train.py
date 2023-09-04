@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# -*-coding:utf-8 -*-
+"""
+    python3 train.py --cuda -ms
+    python3 train.py --cuda -ms -d coco
+    python3 train.py --cuda --batch_size 8 --version yolov3 -root /home/david/dataset/detect/VOC/ --dataset voc --multi_scale --mosaic --max_epoch 3
+"""
 from __future__ import division
 
 import os
@@ -26,6 +33,8 @@ from utils.criterion import build_criterion
 from utils.misc import detection_collate
 from utils.misc import ModelEMA
 from utils.criterion import build_criterion
+from utils.yolo_logging import Logger
+from utils.term_sig_handle import term_sig_handler
 
 from models.yolo import build_model
 
@@ -135,8 +144,16 @@ def parse_args():
 
 def train():
     args = parse_args()
-    print("Setting Arguments.. : ", args)
-    print("----------------------------------------------------------")
+
+    if not os.path.exists(args.log_dir):
+        os.makedirs(args.log_dir)
+    #logging.config.fileConfig('./utils/logging.conf')
+    #logger = logging.getLogger('fileLog01')
+    #print(args.log_dir + "/master.log")
+    logger = Logger(name=args.log_dir + "/master.log", log_level=logging.DEBUG)
+
+    logger.info("Setting Arguments.. : ", args)
+    logger.info("----------------------------------------------------------")
 
     # path to save model
     path_to_save = os.path.join(args.save_folder, args.dataset, args.model)
@@ -511,4 +528,5 @@ def set_lr(optimizer, lr):
 
 
 if __name__ == '__main__':
+    signal.signal(signal.SIGINT, term_sig_handler)
     train()

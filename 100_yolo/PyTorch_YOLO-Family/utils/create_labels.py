@@ -204,7 +204,10 @@ def gt_creator(img_size, strides, label_lists, anchor_size=None, multi_anchor=Fa
             # make labels
             for result in label_assignment_results:
                 grid_x, grid_y, scale_ind, anchor_ind = result
-                
+
+                """
+                    在以往的YOLO算法中，我们回归边界框的中心点时，都只关注网格的左上角点，如图1所示， 即回归相对于网格左上角点的中心点偏移量 tx, ty。这一做法必然会导致正样本数量过少的问题。然而，我们转念一想，既然可以回归相对于左上角的，那我们也应该可以回归相对于右上角、左下角、右小角，即，网格的四个角点都可以作为回归的基准，直观上来看，使用这种策略就可以将正样本的数量增加四倍。这一思想，便是上面代码中的center_sample。
+                """
                 if center_sample:
                     # We consider four grid points near the center point
                     for j in range(grid_y, grid_y+2):

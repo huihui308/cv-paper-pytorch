@@ -140,7 +140,12 @@ class VOCDetection(data.Dataset):
         return img, target, height, width
 
 
+    """
+        当我们获得了一张马赛克图片后，由于这本身就已经是一次比较强的增强，那么我们没必要再去做随机剪裁了，因此，这里我们只需要调用color_augment去做一次色彩空间变换（包括随机水平翻转）即可。而对于非马赛克增强，我们仍采用标准的数据增强操作：随机水平翻转、随机剪裁、色彩空间变换。
+        当然，训练过程中，我们仍会采用多尺度训练
+    """
     def load_mosaic(self, index):
+        # 首先，我们读取一张图像，然后再随机读取另外三张图像
         ids_list_ = self.ids[:index] + self.ids[index+1:]
         # random sample other indexs
         id1 = self.ids[index]
@@ -150,11 +155,15 @@ class VOCDetection(data.Dataset):
         img_lists = []
         tg_lists = []
         # load image and target
+        # 将读取进来的图像以及标签信息分别存放在img_lists和tg_lists变量中
         for id_ in ids:
             img_i, target_i, _, _ = self.load_img_targets(id_)
             img_lists.append(img_i)
             tg_lists.append(target_i)
 
+        """
+            准备好一张空白的图像。假设通常情况下我们是将每张图像resize到640×640，那么由于我们后续要把四张图片按“田”字格的方式去拼接，因此，这里预先准备好的空白马赛克图片的尺寸为1280×1280，完成整个马赛克拼接过程后，我们会最终将其resize到640×640。另外，我们预先在这张空白的马赛克图片上的每一处像素值均填为像素均值。最后，选择一个马赛克中心点，后续我们会根据这个中心点，将四张图像拼接上去
+        """
         mean = np.array([v*255 for v in self.transform.mean])
         mosaic_img = np.ones([self.img_size*2, self.img_size*2, img_i.shape[2]], dtype=np.uint8) * mean
         # mosaic center
@@ -167,9 +176,10 @@ class VOCDetection(data.Dataset):
             target_i = np.array(target_i)
             h0, w0, _ = img_i.shape
 
+            # 首先单独调整每张图片的大小
             # resize
             scale_range = np.arange(50, 210, 10)
-            s = np.random.choice(scale_range) / 100.
+            s = np.random.choice(scale_range) / 100.    # 尺度缩放系数，随机将图片缩放0.5-2.0倍
 
             if np.random.randint(2):
                 # keep aspect ratio
@@ -177,9 +187,15 @@ class VOCDetection(data.Dataset):
                 if r != 1: 
                     img_i = cv2.resize(img_i, (int(w0 * r * s), int(h0 * r * s)))
             else:
+                # not keep aspect ratio
                 img_i = cv2.resize(img_i, (int(self.img_size * s), int(self.img_size * s)))
             h, w, _ = img_i.shape
+            """
+                在上面的实现中，我们会随机将每张图片缩放0.5-2.0倍，缩放0.5-1.0倍可以有效增加小目标样本的数量，而1.0-2.0是弥补马赛克带来的对大目标样本数量抑制的负面效应。这个缩放范围并不是固定的，比如在YOLOX中，其设定为0.1-2.0。缩放的过程是和resize一起的，并且，我们会随机确定是否保留长宽比，这一点是笔者自己加进去的，在官方中的实现是没有考虑进来的。笔者任何，不保留长宽比，可以用来模拟一些物体出现不寻常比例的特殊情况，增加样本的丰富性。
+            """
 
+            # 处理好四张图片后，我们就围绕着先前已经选好的马赛克中心点将它们拼接在一起
+            # # 围绕确定好的马赛克中心点来拼接四张图片
             # place img in img4
             if i == 0:  # top left
                 x1a, y1a, x2a, y2a = max(xc - w, 0), max(yc - h, 0), xc, yc  # xmin, ymin, xmax, ymax (large image)
@@ -195,9 +211,11 @@ class VOCDetection(data.Dataset):
                 x1b, y1b, x2b, y2b = 0, 0, min(w, x2a - x1a), min(y2a - y1a, h)
 
             mosaic_img[y1a:y2a, x1a:x2a] = img_i[y1b:y2b, x1b:x2b]
+            # 并且，根据每张图片所摆放的位置，对标签信息进行调整
             padw = x1a - x1b
             padh = y1a - y1b
 
+            # 调整标签信息
             # labels
             target_i_ = target_i.copy()
             if len(target_i) > 0:
@@ -208,15 +226,21 @@ class VOCDetection(data.Dataset):
                 target_i_[:, 3] = (h * (target_i[:, 3]) + padh)     
                 # check boxes
                 valid_tgt = []
+                # 我们把太小的边界框删除掉
                 for tgt in target_i_:
                     x1, y1, x2, y2, label = tgt
                     bw, bh = x2 - x1, y2 - y1
+                    """
+                        由于在拼接图象的过程中，由于缩放的缘故，可能会有一些物体的标签信息过于极端，因此，笔者这里加了一段剔除的代码，只保留宽高大于5的目标，小于这个范围的我们都舍弃掉，尽可能不引入目标太小的标签信息。
+                    """
                     if bw > 5. and bh > 5.:
                         valid_tgt.append([x1, y1, x2, y2, label])
+                # 检查是否有标签
                 if len(valid_tgt) == 0:
                     valid_tgt.append([0., 0., 0., 0., 0.])
 
                 mosaic_tg.append(target_i_)
+        # 由于拼接过程中，可能某些图片的部分区域超出了马赛克图片的范围，因此，我们还需要再做一次剪裁
         # check target
         if len(mosaic_tg) == 0:
             mosaic_tg = np.zeros([1, 5])
@@ -230,6 +254,19 @@ class VOCDetection(data.Dataset):
         return mosaic_img, mosaic_tg, self.img_size, self.img_size
 
 
+    """
+        总结一下在我们所要实现的YOLOv4中的数据预处理流程（假定启动马赛克增强--mosaic）：
+
+        1.读取当前的一张图像 I1；
+
+        2.若使用马赛克增强（np.random.randint(2) == 1），则再随机读取三张图片 I2, I3, I4，对四张图片做随机缩放处理，然后拼接在一起，并处理标签信息；然后，对马赛克图片做随机水平翻转+色彩空间变换的增强操作；
+
+        3.若不使用马赛克增强（np.random.randint(2) == 0），则将当前图片 I1 resize到固定尺寸（如最长边等于640），然后使用随机水平翻转+随机剪裁+色彩空间变换来处理该图片；
+
+        4.最后，将一批图片拼接为一批数据，倘若使用多尺度训练策略，我们采用插值的方法将这一批图片调整至其他尺寸（如320、352、384、……608、640）。
+
+        参考YOLOX的建议，在训练的最后15epoch，我们会关掉马赛克增强，这是考虑到在马赛克增强的过程中，由于存在缩放和剪裁的操作，会留下一些质量很差的样本，最后的15epoch就是为了缓解这一问题。经过笔者的实测，确实能够提升性能，不过小目标的性能会略微有所损失，比如在笔者某次训练中，小目标的AP达到了27.6，但由于最后15epoch关闭了马赛克增强，小目标的AP掉到了26.9。不过，由于总的AP提升了0.6个点，这一策略还是有效的。
+    """
     def pull_item(self, index):
         # load a mosaic image
         if self.mosaic and np.random.randint(2):
