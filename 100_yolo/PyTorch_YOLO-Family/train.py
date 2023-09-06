@@ -7,12 +7,9 @@
 """
 from __future__ import division
 
-import os
-import argparse
-import time
 import math
-import random
 from copy import deepcopy
+import os, signal, time, random, logging, argparse
 
 import torch
 import torch.optim as optim
@@ -79,6 +76,8 @@ def parse_args():
                         help='visualize images and labels.')
     parser.add_argument('--vis_targets', action='store_true', default=False,
                         help='visualize assignment.')
+    parser.add_argument('--log_dir', default='./logs', type=str, 
+                        help='Log dir')
 
     # Optimizer & Schedule
     parser.add_argument('--optimizer', default='sgd', type=str,
@@ -152,27 +151,29 @@ def train():
     #print(args.log_dir + "/master.log")
     logger = Logger(name=args.log_dir + "/master.log", log_level=logging.DEBUG)
 
-    logger.info("Setting Arguments.. : ", args)
+    logger.info("Setting Arguments.. : {}".format(args))
     logger.info("----------------------------------------------------------")
 
     # path to save model
     path_to_save = os.path.join(args.save_folder, args.dataset, args.model)
     os.makedirs(path_to_save, exist_ok=True)
+    logger.info('path_to_save: {}'.format(path_to_save))
 
     # set distributed
     local_rank = 0
     if args.distributed:
         dist.init_process_group(backend="nccl", init_method="env://")
         local_rank = torch.distributed.get_rank()
-        print(local_rank)
+        logger.info('local_rank: {}'.format(local_rank))
         torch.cuda.set_device(local_rank)
 
     # cuda
     if args.cuda:
-        print('use cuda')
+        logger.info('use cuda')
         cudnn.benchmark = True
         device = torch.device("cuda")
     else:
+        logger.info('use cpu')
         device = torch.device("cpu")
 
     # YOLO config
@@ -385,8 +386,8 @@ def train():
                            loss_dict['loss_cls'].item(), 
                            loss_dict['loss_reg'].item(), 
                            train_size, 
-                           t1-t0),
-                        flush=True)
+                           t1-t0))
+                           #flush=True)
 
                 t0 = time.time()
 

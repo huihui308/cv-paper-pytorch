@@ -1,4 +1,4 @@
-python train.py \
+python3 train.py \
         --cuda \
         -d coco \
         -m yolov3_spp \

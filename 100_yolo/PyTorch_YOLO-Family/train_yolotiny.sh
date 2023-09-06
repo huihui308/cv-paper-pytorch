@@ -1,8 +1,8 @@
-python train.py \
+python3 train.py \
         --cuda \
         -d coco \
         -m yolo_tiny \
-        --root /home/jxk/object-detection/dataset \
+        --root /home/david/dataset/detect/VOC/ \
         --batch_size 16 \
         --lr 0.001 \
         --img_size 512 \
@@ -14,4 +14,3 @@ python train.py \
         --mosaic \
         --multi_anchor \
         --ema
-                        
