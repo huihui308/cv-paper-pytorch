@@ -1,8 +1,11 @@
+#!/usr/bin/env python3
+# -*-coding:utf-8 -*-
 import numpy as np
 import cv2
+import os
 
 
-def vis_data(images, targets):
+def vis_data(logger, epoch, save_path, images, targets):
     """
         images: (tensor) [B, 3, H, W]
         targets: (list) a list of targets
@@ -31,11 +34,14 @@ def vis_data(images, targets):
             y2 = int(y2 * img_h)
             cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
 
-        cv2.imshow('groundtruth', image)
-        cv2.waitKey(0)
+        #cv2.imshow('groundtruth', image)
+        #cv2.waitKey(0)
+        save_file = os.path.join(save_path, str(epoch).zfill(4) + '_' + str(bi).zfill(6) +'.jpg')
+        logger.info('Save image: {}'.format(save_file))
+        cv2.imwrite(save_file, image)
 
 
-def vis_targets(images, targets, anchor_sizes=None, strides=[8, 16, 32]):
+def vis_targets(logger, epoch, save_path, images, targets, anchor_sizes=None, strides=[8, 16, 32]):
     """
         images: (tensor) [B, 3, H, W]
         targets: (tensor) [B, HW*KA, 1+1+4+1]
@@ -102,5 +108,8 @@ def vis_targets(images, targets, anchor_sizes=None, strides=[8, 16, 32]):
                                 print('stride: {} - anchor point: ({}, {})'.format(s, *anchor_point))
                                 cv2.circle(image, anchor_point, 10, (255, 0, 0), -1)
 
-        cv2.imshow('assignment', image)
-        cv2.waitKey(0)
+        #cv2.imshow('assignment', image)
+        #cv2.waitKey(0)
+        save_file = os.path.join(save_path, str(epoch).zfill(4) + '_' + str(bi).zfill(6) +'.jpg')
+        logger.info('Save image: {}'.format(save_file))
+        cv2.imwrite(save_file, image)

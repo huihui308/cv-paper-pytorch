@@ -7,10 +7,10 @@ from .yolo_nano import YOLONano
 
 
 # build YOLO detector
-def build_model(args, cfg, device, num_classes=80, trainable=False):
+def build_model(logger, args, cfg, device, num_classes=80, trainable=False):
     
     if args.model == 'yolov1':
-        print('Build YOLOv1 ...')
+        logger.info('Build YOLOv1 ...')
         model = YOLOv1(cfg=cfg,
                         device=device, 
                         img_size=args.img_size, 
@@ -20,7 +20,7 @@ def build_model(args, cfg, device, num_classes=80, trainable=False):
                         nms_thresh=args.nms_thresh,
                         center_sample=args.center_sample)
     elif args.model == 'yolov2':
-        print('Build YOLOv2 ...')
+        logger.info('Build YOLOv2 ...')
         model = YOLOv2(cfg=cfg,
                         device=device, 
                         img_size=args.img_size, 
@@ -30,7 +30,7 @@ def build_model(args, cfg, device, num_classes=80, trainable=False):
                         nms_thresh=args.nms_thresh,
                         center_sample=args.center_sample)
     elif args.model == 'yolov3':
-        print('Build YOLOv3 ...')
+        logger.info('Build YOLOv3 ...')
         model = YOLOv3(cfg=cfg,
                         device=device, 
                         img_size=args.img_size, 
@@ -40,7 +40,7 @@ def build_model(args, cfg, device, num_classes=80, trainable=False):
                         nms_thresh=args.nms_thresh,
                         center_sample=args.center_sample)
     elif args.model == 'yolov3_spp':
-        print('Build YOLOv3 with SPP ...')
+        logger.info('Build YOLOv3 with SPP ...')
         model = YOLOv3(cfg=cfg,
                         device=device, 
                         img_size=args.img_size, 
@@ -50,7 +50,7 @@ def build_model(args, cfg, device, num_classes=80, trainable=False):
                         nms_thresh=args.nms_thresh,
                         center_sample=args.center_sample)
     elif args.model == 'yolov3_de':
-        print('Build YOLOv3 with DilatedEncoder ...')
+        logger.info('Build YOLOv3 with DilatedEncoder ...')
         model = YOLOv3(cfg=cfg,
                         device=device, 
                         img_size=args.img_size, 
@@ -60,7 +60,7 @@ def build_model(args, cfg, device, num_classes=80, trainable=False):
                         nms_thresh=args.nms_thresh,
                         center_sample=args.center_sample)
     elif args.model == 'yolov4':
-        print('Build YOLOv4 ...')
+        logger.info('Build YOLOv4 ...')
         model = YOLOv4(cfg=cfg,
                         device=device, 
                         img_size=args.img_size, 
@@ -70,7 +70,7 @@ def build_model(args, cfg, device, num_classes=80, trainable=False):
                         nms_thresh=args.nms_thresh,
                         center_sample=args.center_sample)
     elif args.model == 'yolo_tiny':
-        print('Build YOLO-Tiny ...')
+        logger.info('Build YOLO-Tiny ...')
         model = YOLOTiny(cfg=cfg,
                         device=device, 
                         img_size=args.img_size, 
@@ -80,7 +80,7 @@ def build_model(args, cfg, device, num_classes=80, trainable=False):
                         nms_thresh=args.nms_thresh,
                         center_sample=args.center_sample)
     elif args.model == 'yolo_nano':
-        print('Build YOLO-Nano ...')
+        logger.info('Build YOLO-Nano ...')
         model = YOLONano(cfg=cfg,
                         device=device, 
                         img_size=args.img_size, 

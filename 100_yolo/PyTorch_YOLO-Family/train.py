@@ -4,6 +4,38 @@
     python3 train.py --cuda -ms
     python3 train.py --cuda -ms -d coco
     python3 train.py --cuda --batch_size 8 --version yolov3 -root /home/david/dataset/detect/VOC/ --dataset voc --multi_scale --mosaic --max_epoch 3
+
+    python3 train.py \
+            --cuda \
+            -d voc \
+            -m yolo_nano \
+            --root /home/david/dataset/detect/VOC \
+            --batch_size 64 \
+            --lr 0.001 \
+            --img_size 512 \
+            --max_epoch 160 \
+            --lr_epoch 100 130 \
+            --multi_scale \
+            --multi_scale_range 10 16 \
+            --multi_anchor \
+            --ema \
+            --vis_data
+
+    python3 train.py \
+            --cuda \
+            -d voc \
+            -m yolo_nano \
+            --root /home/david/dataset/detect/VOC \
+            --batch_size 64 \
+            --lr 0.001 \
+            --img_size 512 \
+            --max_epoch 160 \
+            --lr_epoch 100 130 \
+            --multi_scale \
+            --multi_scale_range 10 16 \
+            --multi_anchor \
+            --ema \
+            --vis_targets
 """
 from __future__ import division
 
@@ -192,7 +224,8 @@ def train():
     logger.info("----------------------------------------------------------")
 
     # build model
-    net = build_model(args=args, 
+    net = build_model(logger,
+                      args=args, 
                       cfg=cfg, 
                       device=device, 
                       num_classes=num_classes, 
@@ -201,7 +234,7 @@ def train():
 
     # SyncBatchNorm
     if args.sybn and args.cuda and args.num_gpu > 1:
-        print('use SyncBatchNorm ...')
+        logger.info('use SyncBatchNorm ...')
         model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
 
     model = model.to(device).train()
@@ -213,16 +246,15 @@ def train():
         FLOPs_and_Params(model=model_copy, size=train_size)
         model_copy.trainable = True
         model_copy.train()
-        
 
     # DDP
     if args.distributed and args.num_gpu > 1:
-        print('using DDP ...')
+        logger.info('using DDP ...')
         model = DDP(model, device_ids=[local_rank], output_device=local_rank)
      
     # keep training
     if args.resume is not None:
-        print('keep training model: %s' % (args.resume))
+        logger.info('keep training model: {}'.format(args.resume))
         model.load_state_dict(torch.load(args.resume, map_location=device))
 
     # EMA
@@ -231,7 +263,7 @@ def train():
     # use tfboard
     tblogger = None
     if args.tfboard:
-        print('use tensorboard')
+        logger.info('use tensorboard')
         from torch.utils.tensorboard import SummaryWriter
         c_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
         log_path = os.path.join('log/', args.dataset, c_time)
@@ -243,13 +275,13 @@ def train():
     base_lr = args.lr
     tmp_lr = args.lr
     if args.optimizer == 'sgd':
-        print('use SGD with momentum ...')
+        logger.info('use SGD with momentum ...')
         optimizer = optim.SGD(model.parameters(), 
                                 lr=tmp_lr, 
                                 momentum=0.9,
                                 weight_decay=5e-4)
     elif args.optimizer == 'adamw':
-        print('use AdamW ...')
+        logger.info('use AdamW ...')
         optimizer = optim.AdamW(model.parameters(), 
                                 lr=tmp_lr, 
                                 weight_decay=5e-4)
@@ -276,7 +308,7 @@ def train():
             lr_min = base_lr * 0.1 * 0.1
             if epoch > T_max:
                 # Cos decay is done
-                print('Cosine annealing is over !!')
+                logger.info('Cosine annealing is over !!')
                 args.lr_schedule == None
                 tmp_lr = lr_min
                 set_lr(optimizer, tmp_lr)
@@ -295,7 +327,7 @@ def train():
 
             elif epoch == args.wp_epoch and iter_i == 0 and warmup:
                 # warmup is over
-                print('Warmup is over !!')
+                logger.info('Warmup is over !!')
                 warmup = False
                 tmp_lr = base_lr
                 set_lr(optimizer, tmp_lr)
@@ -317,7 +349,7 @@ def train():
             targets = [label.tolist() for label in targets]
             # visualize target
             if args.vis_data:
-                vis_data(images, targets)
+                vis_data(logger, epoch, args.log_dir, images, targets)
                 continue
             # make labels
             targets = create_labels.gt_creator(
@@ -329,7 +361,7 @@ def train():
                                     center_sample=args.center_sample)
             # visualize assignment
             if args.vis_targets:
-                vis_targets(images, targets, cfg["anchor_size"], net.stride)
+                vis_targets(logger, epoch, args.log_dir, images, targets, cfg["anchor_size"], net.stride)
                 continue
 
             # to device
@@ -376,8 +408,8 @@ def train():
                     tblogger.add_scalar('loss reg',  loss_dict_reduced['loss_reg'].item(),  ni)
                 
                 t1 = time.time()
-                print('[Epoch %d/%d][Iter %d/%d][lr %.6f][Loss: obj %.2f || cls %.2f || reg %.2f || size %d || time: %.2f]'
-                        % (epoch+1, 
+                logger.info('[Epoch {:3d}/{:3d}][Iter {:3d}/{:3d}][lr {:.6f}][Loss: obj {:.2f} || cls {:.2f} || reg {:.2f} || size {:3d} || time: {:.2f}]'.format
+                        (epoch+1, 
                            args.max_epoch, 
                            iter_i, 
                            epoch_size, 
@@ -394,13 +426,13 @@ def train():
         # evaluation
         if (epoch + 1) % args.eval_epoch == 0 or (epoch + 1) == args.max_epoch:
             if evaluator is None:
-                print('No evaluator ...')
-                print('Saving state, epoch:', epoch + 1)
+                logger.info('No evaluator ...')
+                logger.info('Saving state, epoch: {}'.format(epoch + 1))
                 torch.save(model_eval.state_dict(), os.path.join(path_to_save, 
                             args.model + '_' + repr(epoch + 1) + '.pth'))  
-                print('Keep training ...')
+                logger.info('Keep training ...')
             else:
-                print('eval ...')
+                logger.info('eval ...')
                 # check ema
                 if args.ema:
                     model_eval = ema.ema
@@ -421,7 +453,7 @@ def train():
                         # update best-map
                         best_map = cur_map
                         # save model
-                        print('Saving state, epoch:', epoch + 1)
+                        logger.info('Saving state, epoch: {}'.format(epoch + 1))
                         torch.save(model_eval.state_dict(), os.path.join(path_to_save, 
                                     args.model + '_' + repr(epoch + 1) + '_' + str(round(best_map*100, 2)) + '.pth'))  
                     if args.tfboard:
@@ -442,11 +474,11 @@ def train():
 
         # close mosaic augmentation
         if args.mosaic and args.max_epoch - epoch == 15:
-            print('close Mosaic Augmentation ...')
+            logger.info('close Mosaic Augmentation ...')
             dataloader.dataset.mosaic = False
         # close mixup augmentation
         if args.mixup and args.max_epoch - epoch == 15:
-            print('close Mixup Augmentation ...')
+            logger.info('close Mixup Augmentation ...')
             dataloader.dataset.mixup = False
 
     if args.tfboard:
