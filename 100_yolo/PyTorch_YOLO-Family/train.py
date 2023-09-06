@@ -181,15 +181,15 @@ def train():
     train_size = val_size = args.img_size
 
     # dataset and evaluator
-    dataset, evaluator, num_classes = build_dataset(args, train_size, val_size, device)
+    dataset, evaluator, num_classes = build_dataset(logger, args, train_size, val_size, device)
     # dataloader
     dataloader = build_dataloader(args, dataset, detection_collate)
     # criterioin
     criterion = build_criterion(args, cfg, num_classes)
     
-    print('Training model on:', args.dataset)
-    print('The dataset size:', len(dataset))
-    print("----------------------------------------------------------")
+    logger.info('Training model on: {}'.format(args.dataset))
+    logger.info('The dataset size: {}'.format(len(dataset)))
+    logger.info("----------------------------------------------------------")
 
     # build model
     net = build_model(args=args, 
@@ -453,11 +453,13 @@ def train():
         tblogger.close()
 
 
-def build_dataset(args, train_size, val_size, device):
+def build_dataset(logger, args, train_size, val_size, device):
+    logger.info('dataset is {}'.format(args.dataset))
     if args.dataset == 'voc':
-        data_dir = os.path.join(args.root, 'VOCdevkit')
+        data_dir = os.path.join(args.root, '')
         num_classes = 20
         dataset = VOCDetection(
+                        logger,
                         data_dir=data_dir,
                         img_size=train_size,
                         transform=TrainTransforms(train_size),
@@ -466,6 +468,7 @@ def build_dataset(args, train_size, val_size, device):
                         mixup=args.mixup)
 
         evaluator = VOCAPIEvaluator(
+                        logger,
                         data_dir=data_dir,
                         img_size=val_size,
                         device=device,
@@ -491,7 +494,7 @@ def build_dataset(args, train_size, val_size, device):
                         )
     
     else:
-        print('unknow dataset !! Only support voc and coco !!')
+        logger.error('unknow dataset !! Only support voc and coco !!')
         exit(0)
 
     return dataset, evaluator, num_classes

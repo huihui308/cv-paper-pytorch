@@ -88,6 +88,7 @@ class VOCDetection(data.Dataset):
     """
 
     def __init__(self, 
+                 logger,
                  data_dir=None,
                  img_size=640,
                  image_sets=[('2007', 'trainval'), ('2012', 'trainval')],
@@ -96,6 +97,7 @@ class VOCDetection(data.Dataset):
                  target_transform=VOCAnnotationTransform(),
                  mosaic=False,
                  mixup=False):
+        self.logger = logger
         self.root = data_dir
         self.img_size = img_size
         self.image_set = image_sets
@@ -113,9 +115,9 @@ class VOCDetection(data.Dataset):
         self.mixup = mixup
         self.color_augment = color_augment
         if self.mosaic:
-            print('use Mosaic Augmentation ...')
+            self.logger.info('use Mosaic Augmentation ...')
         if self.mixup:
-            print('use MixUp Augmentation ...')
+            self.logger.info('use MixUp Augmentation ...')
 
 
     def __getitem__(self, index):
@@ -191,11 +193,11 @@ class VOCDetection(data.Dataset):
                 img_i = cv2.resize(img_i, (int(self.img_size * s), int(self.img_size * s)))
             h, w, _ = img_i.shape
             """
-                在上面的实现中，我们会随机将每张图片缩放0.5-2.0倍，缩放0.5-1.0倍可以有效增加小目标样本的数量，而1.0-2.0是弥补马赛克带来的对大目标样本数量抑制的负面效应。这个缩放范围并不是固定的，比如在YOLOX中，其设定为0.1-2.0。缩放的过程是和resize一起的，并且，我们会随机确定是否保留长宽比，这一点是笔者自己加进去的，在官方中的实现是没有考虑进来的。笔者任何，不保留长宽比，可以用来模拟一些物体出现不寻常比例的特殊情况，增加样本的丰富性。
+                在上面的实现中，我们会随机将每张图片缩放0.5-2.0倍，缩放0.5-1.0倍可以有效增加小目标样本的数量，而1.0-2.0是弥补马赛克带来的对大目标样本数量抑制的负面效应。这个缩放范围并不是固定的，比如在YOLOX中，其设定为0.1-2.0。缩放的过程是和resize一起的，并且，我们会随机确定是否保留长宽比，这一点是笔者自己加进去的，在官方中的实现是没有考虑进来的。笔者认为，不保留长宽比，可以用来模拟一些物体出现不寻常比例的特殊情况，增加样本的丰富性。
             """
 
             # 处理好四张图片后，我们就围绕着先前已经选好的马赛克中心点将它们拼接在一起
-            # # 围绕确定好的马赛克中心点来拼接四张图片
+            # 围绕确定好的马赛克中心点来拼接四张图片
             # place img in img4
             if i == 0:  # top left
                 x1a, y1a, x2a, y2a = max(xc - w, 0), max(yc - h, 0), xc, yc  # xmin, ymin, xmax, ymax (large image)

@@ -1,6 +1,6 @@
 python3 train.py \
         --cuda \
-        -d coco \
+        -d voc \
         -m yolo_tiny \
         --root /home/david/dataset/detect/VOC/ \
         --batch_size 16 \

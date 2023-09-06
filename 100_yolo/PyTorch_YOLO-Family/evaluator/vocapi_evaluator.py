@@ -15,6 +15,7 @@ import xml.etree.ElementTree as ET
 class VOCAPIEvaluator():
     """ VOC AP Evaluation class """
     def __init__(self, 
+                 logger,
                  data_dir, 
                  img_size, 
                  device, 
@@ -22,6 +23,7 @@ class VOCAPIEvaluator():
                  set_type='test', 
                  year='2007', 
                  display=False):
+        self.logger = logger
         self.data_dir = data_dir
         self.img_size = img_size
         self.device = device
@@ -39,7 +41,8 @@ class VOCAPIEvaluator():
         self.output_dir = self.get_output_dir('voc_eval/', self.set_type)
 
         # dataset
-        self.dataset = VOCDetection(data_dir=data_dir, 
+        self.dataset = VOCDetection(self.logger,
+                                    data_dir=data_dir, 
                                     image_sets=[('2007', set_type)],
                                     transform=transform)
 

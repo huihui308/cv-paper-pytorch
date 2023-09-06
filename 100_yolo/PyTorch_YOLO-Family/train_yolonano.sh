@@ -1,8 +1,8 @@
 python3 train.py \
         --cuda \
-        -d coco \
+        -d voc \
         -m yolo_nano \
-        --root /home/david/dataset/detect/VOC/ \
+        --root /home/david/dataset/detect/VOC \
         --batch_size 64 \
         --lr 0.001 \
         --img_size 512 \
