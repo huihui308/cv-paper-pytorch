@@ -89,15 +89,15 @@ class VOCAPIEvaluator():
                 self.all_boxes[j][i] = c_dets
 
             if i % 500 == 0:
-                print('im_detect: {:d}/{:d} {:.3f}s'.format(i + 1, num_images, detect_time))
+                self.logger.info('im_detect: {:d}/{:d} {:.3f}s'.format(i + 1, num_images, detect_time))
 
         with open(det_file, 'wb') as f:
             pickle.dump(self.all_boxes, f, pickle.HIGHEST_PROTOCOL)
 
-        print('Evaluating detections')
+        self.logger.info('Evaluating detections')
         self.evaluate_detections(self.all_boxes)
 
-        print('Mean AP: ', self.map)
+        self.logger.info('Mean AP: {}'.format(self.map))
   
 
     def parse_rec(self, filename):
@@ -145,7 +145,7 @@ class VOCAPIEvaluator():
     def write_voc_results_file(self, all_boxes):
         for cls_ind, cls in enumerate(self.labelmap):
             if self.display:
-                print('Writing {:s} VOC results file'.format(cls))
+                self.logger.info('Writing {:s} VOC results file'.format(cls))
             filename = self.get_voc_results_file_template(cls)
             with open(filename, 'wt') as f:
                 for im_ind, index in enumerate(self.dataset.ids):
@@ -165,7 +165,7 @@ class VOCAPIEvaluator():
         aps = []
         # The PASCAL VOC metric changed in 2010
         use_07_metric = use_07
-        print('VOC07 metric? ' + ('Yes' if use_07_metric else 'No'))
+        self.logger.info('VOC07 metric? ' + ('Yes' if use_07_metric else 'No'))
         if not os.path.isdir(self.output_dir):
             os.mkdir(self.output_dir)
         for i, cls in enumerate(self.labelmap):
@@ -177,26 +177,26 @@ class VOCAPIEvaluator():
                                           use_07_metric=use_07_metric
                                         )
             aps += [ap]
-            print('AP for {} = {:.4f}'.format(cls, ap))
+            self.logger.info('AP for {} = {:.4f}'.format(cls, ap))
             with open(os.path.join(self.output_dir, cls + '_pr.pkl'), 'wb') as f:
                 pickle.dump({'rec': rec, 'prec': prec, 'ap': ap}, f)
         if self.display:
             self.map = np.mean(aps)
-            print('Mean AP = {:.4f}'.format(np.mean(aps)))
-            print('~~~~~~~~')
-            print('Results:')
+            self.logger.info('Mean AP = {:.4f}'.format(np.mean(aps)))
+            self.logger.info('~~~~~~~~')
+            self.logger.info('Results:')
             for ap in aps:
-                print('{:.3f}'.format(ap))
-            print('{:.3f}'.format(np.mean(aps)))
-            print('~~~~~~~~')
-            print('')
-            print('--------------------------------------------------------------')
-            print('Results computed with the **unofficial** Python eval code.')
-            print('Results should be very close to the official MATLAB eval code.')
-            print('--------------------------------------------------------------')
+                self.logger.info('{:.3f}'.format(ap))
+            self.logger.info('{:.3f}'.format(np.mean(aps)))
+            self.logger.info('~~~~~~~~')
+            self.logger.info('')
+            self.logger.info('--------------------------------------------------------------')
+            self.logger.info('Results computed with the **unofficial** Python eval code.')
+            self.logger.info('Results should be very close to the official MATLAB eval code.')
+            self.logger.info('--------------------------------------------------------------')
         else:
             self.map = np.mean(aps)
-            print('Mean AP = {:.4f}'.format(np.mean(aps)))
+            self.logger.info('Mean AP = {:.4f}'.format(np.mean(aps)))
 
 
     def voc_ap(self, rec, prec, use_07_metric=True):

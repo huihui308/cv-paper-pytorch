@@ -376,6 +376,7 @@ def train():
 
             # check loss
             if torch.isnan(total_loss):
+                logger.warning('total_loss is nan, continue')
                 continue
 
             loss_dict = dict(
