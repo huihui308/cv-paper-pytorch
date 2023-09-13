@@ -10,6 +10,7 @@ from utils.misc import multiclass_nms
 
 class YOLOX(nn.Module):
     def __init__(self, 
+                 logger,
                  cfg,
                  device, 
                  num_classes = 20, 
@@ -20,6 +21,7 @@ class YOLOX(nn.Module):
                  deploy = False):
         super(YOLOX, self).__init__()
         # ---------------------- Basic Parameters ----------------------
+        self.logger = logger
         self.cfg = cfg
         self.device = device
         self.stride = cfg['stride']
@@ -40,7 +42,7 @@ class YOLOX(nn.Module):
 
         ## 检测头
         self.non_shared_heads = nn.ModuleList(
-            [build_head(cfg, head_dim, head_dim, num_classes) 
+            [build_head(self.logger, cfg, head_dim, head_dim, num_classes) 
             for head_dim in self.head_dim
             ])
 

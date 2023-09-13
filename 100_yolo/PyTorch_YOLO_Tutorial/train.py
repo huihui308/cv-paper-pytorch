@@ -148,12 +148,12 @@ def train():
         device = torch.device("cpu")
 
     # Build Dataset & Model & Trans. Config
-    data_cfg = build_dataset_config(args, logger)
-    model_cfg = build_model_config(args)
-    trans_cfg = build_trans_config(model_cfg['trans_type'])
+    data_cfg = build_dataset_config(logger, args)
+    model_cfg = build_model_config(logger, args)
+    trans_cfg = build_trans_config(logger, model_cfg['trans_type'])
 
     # Build Model
-    model, criterion = build_model(args, model_cfg, device, data_cfg['num_classes'], True)
+    model, criterion = build_model(logger, args, model_cfg, device, data_cfg['num_classes'], True)
 
     return
     # Keep training

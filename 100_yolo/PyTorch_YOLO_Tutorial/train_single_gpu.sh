@@ -1,9 +1,9 @@
 # -------------------------- Train YOLOX & YOLOv7 & RTCDet series --------------------------
-python train.py \
+python3 train.py \
         --cuda \
-        -d coco \
-        --root /data/datasets/ \
-        -m rtcdet_s \
+        -d voc \
+        --root /home/david/dataset/detect/VOC \
+        -m yolox_x \
         -bs 8 \
         -size 640 \
         --wp_epoch 3 \

@@ -2,7 +2,7 @@
 from .data_config.dataset_config import dataset_cfg
 
 
-def build_dataset_config(args, logger):
+def build_dataset_config(logger, args):
     if args.dataset in ['coco', 'coco-val', 'coco-test']:
         cfg = dataset_cfg['coco']
     else:
@@ -34,9 +34,9 @@ from .data_config.transform_config import (
     ssd_trans_config,
 )
 
-def build_trans_config(trans_config='ssd'):
-    print('==============================')
-    print('Transform: {}-Style ...'.format(trans_config))
+def build_trans_config(logger, trans_config='ssd'):
+    logger.info('==============================')
+    logger.info('Transform: {}-Style ...'.format(trans_config))
    
     # SSD-style transform 
     if trans_config == 'ssd':
@@ -70,7 +70,7 @@ def build_trans_config(trans_config='ssd'):
     elif trans_config == 'yolox_huge':
         cfg = yolox_huge_trans_config
 
-    print('Transform Config: {} \n'.format(cfg))
+    logger.info('Transform Config: {} \n'.format(cfg))
 
     return cfg
 
@@ -88,9 +88,9 @@ from .model_config.yolox_config import yolox_cfg
 from .model_config.rtcdet_config import rtcdet_cfg
 
 
-def build_model_config(args):
-    print('==============================')
-    print('Model: {} ...'.format(args.model.upper()))
+def build_model_config(logger, args):
+    logger.info('==============================')
+    logger.info('Model: {} ...'.format(args.model.upper()))
     # YOLOv1
     if args.model == 'yolov1':
         cfg = yolov1_cfg

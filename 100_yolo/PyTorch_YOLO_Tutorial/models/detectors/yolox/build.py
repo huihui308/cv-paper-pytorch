@@ -9,15 +9,16 @@ from .yolox import YOLOX
 
 
 # build object detector
-def build_yolox(args, cfg, device, num_classes=80, trainable=False, deploy=False):
-    print('==============================')
-    print('Build {} ...'.format(args.model.upper()))
+def build_yolox(logger, args, cfg, device, num_classes=80, trainable=False, deploy=False):
+    logger.info('==============================')
+    logger.info('Build {} ...'.format(args.model.upper()))
     
-    print('==============================')
-    print('Model Configuration: \n', cfg)
+    logger.info('==============================')
+    logger.info('Model Configuration: {}'.format(cfg))
     
     # -------------- Build YOLO --------------
     model = YOLOX(
+        logger = logger,
         cfg=cfg,
         device=device, 
         num_classes=num_classes,

@@ -5,10 +5,11 @@ from .yolox_basic import Conv
 
 
 class DecoupledHead(nn.Module):
-    def __init__(self, cfg, in_dim, out_dim, num_classes=80):
+    def __init__(self, logger, cfg, in_dim, out_dim, num_classes=80):
         super().__init__()
-        print('==============================')
-        print('Head: Decoupled Head')
+        self.logger = logger
+        logger.info('==============================')
+        logger.info('Head: Decoupled Head')
         # --------- Basic Parameters ----------
         self.in_dim = in_dim
         self.num_cls_head=cfg['num_cls_head']
@@ -67,7 +68,7 @@ class DecoupledHead(nn.Module):
     
 
 # build detection head
-def build_head(cfg, in_dim, out_dim, num_classes=80):
-    head = DecoupledHead(cfg, in_dim, out_dim, num_classes) 
+def build_head(logger, cfg, in_dim, out_dim, num_classes=80):
+    head = DecoupledHead(logger, cfg, in_dim, out_dim, num_classes) 
 
     return head

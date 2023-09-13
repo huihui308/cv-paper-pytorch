@@ -15,7 +15,8 @@ from .yolox.build import build_yolox
 
 
 # build object detector
-def build_model(args, 
+def build_model(logger,
+                args, 
                 model_cfg,
                 device, 
                 num_classes=80, 
@@ -48,7 +49,7 @@ def build_model(args,
     # YOLOX   
     elif args.model in ['yolox_n', 'yolox_s', 'yolox_m', 'yolox_l', 'yolox_x']:
         model, criterion = build_yolox(
-            args, model_cfg, device, num_classes, trainable, deploy)
+            logger, args, model_cfg, device, num_classes, trainable, deploy)
     # RTCDet
     elif args.model in ['rtcdet_p', 'rtcdet_n', 'rtcdet_t', 'rtcdet_s', 'rtcdet_m', 'rtcdet_l', 'rtcdet_x']:
         model, criterion = build_rtcdet(
