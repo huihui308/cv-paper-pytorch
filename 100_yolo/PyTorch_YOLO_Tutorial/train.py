@@ -8,7 +8,7 @@
 from __future__ import division
 
 import logging.config
-import os, signal, argparse
+import os, signal, datetime, argparse
 from copy import deepcopy
 
 # ----------------- Torch Components -----------------
@@ -127,8 +127,10 @@ def train():
     #logging.config.fileConfig('./utils/logging.conf')
     #logger = logging.getLogger('fileLog01')
     #print(args.log_dir + "/master.log")
-    logger = Logger(name=args.log_dir + "/master.log", log_level=logging.DEBUG)
+    log_file_path = name=args.log_dir + '/' + args.model + '_' + datetime.datetime.now().strftime("%Y-%m-%d-%H_%M_%S") + '.log'
+    logger = Logger(log_file_path, log_level=logging.DEBUG)
 
+    logger.info("Log file is: {}".format(log_file_path))
     logger.info("Setting Arguments.. : {}".format(args))
     logger.info("----------------------------------------------------------")
     # Build DDP
@@ -155,10 +157,9 @@ def train():
     # Build Model
     model, criterion = build_model(logger, args, model_cfg, device, data_cfg['num_classes'], True)
 
-    return
     # Keep training
     if distributed_utils.is_main_process and args.resume is not None:
-        print('keep training: ', args.resume)
+        logger.info('keep training: {}'.format(args.resume))
         checkpoint = torch.load(args.resume, map_location='cpu')
         # checkpoint state dict
         checkpoint_state_dict = checkpoint.pop("model")
@@ -167,7 +168,7 @@ def train():
     model = model.to(device).train()
     model_without_ddp = model
     if args.sybn and args.distributed:
-        print('use SyncBatchNorm ...')
+        logger.info('use SyncBatchNorm ...')
         model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
     if args.distributed:
         model = DDP(model, device_ids=[args.gpu])
@@ -178,7 +179,8 @@ def train():
         model_copy = deepcopy(model_without_ddp)
         model_copy.trainable = False
         model_copy.eval()
-        compute_flops(model=model_copy,
+        compute_flops(logger=logger,
+                      model=model_copy,
                       img_size=args.img_size,
                       device=device)
         del model_copy
@@ -186,7 +188,7 @@ def train():
         dist.barrier()
 
     # Build Trainer
-    trainer = build_trainer(args, data_cfg, model_cfg, trans_cfg, device, model_without_ddp, criterion, world_size)
+    trainer = build_trainer(logger, args, data_cfg, model_cfg, trans_cfg, device, model_without_ddp, criterion, world_size)
 
     # --------------------------------- Train: Start ---------------------------------
     ## Eval before training

@@ -164,12 +164,12 @@ def replace_module(module, replaced_module_type, new_module_type, replace_func=N
     return model
 
 ## compute FLOPs & Parameters
-def compute_flops(model, img_size, device):
+def compute_flops(logger, model, img_size, device):
     x = torch.randn(1, 3, img_size, img_size).to(device)
-    print('==============================')
+    logger.info('==============================')
     flops, params = profile(model, inputs=(x, ), verbose=False)
-    print('GFLOPs : {:.2f}'.format(flops / 1e9 * 2))
-    print('Params : {:.2f} M'.format(params / 1e6))
+    logger.info('GFLOPs : {:.2f}'.format(flops / 1e9 * 2))
+    logger.info('Params : {:.2f} M'.format(params / 1e6))
 
 ## load trained weight
 def load_weight(model, path_to_ckpt, fuse_cbn=False):

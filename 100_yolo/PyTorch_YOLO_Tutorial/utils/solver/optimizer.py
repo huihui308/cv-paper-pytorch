@@ -2,12 +2,12 @@ import torch
 import torch.nn as nn
 
 
-def build_yolo_optimizer(cfg, model, resume=None):
-    print('==============================')
-    print('Optimizer: {}'.format(cfg['optimizer']))
-    print('--base lr: {}'.format(cfg['lr0']))
-    print('--momentum: {}'.format(cfg['momentum']))
-    print('--weight_decay: {}'.format(cfg['weight_decay']))
+def build_yolo_optimizer(logger, cfg, model, resume=None):
+    logger.info('==============================')
+    logger.info('Optimizer: {}'.format(cfg['optimizer']))
+    logger.info('--base lr: {}'.format(cfg['lr0']))
+    logger.info('--momentum: {}'.format(cfg['momentum']))
+    logger.info('--weight_decay: {}'.format(cfg['weight_decay']))
 
     g = [], [], []  # optimizer parameter groups
     bn = tuple(v for k, v in nn.__dict__.items() if 'Norm' in k)  # normalization layers, i.e. BatchNorm2d()
@@ -33,7 +33,7 @@ def build_yolo_optimizer(cfg, model, resume=None):
 
     start_epoch = 0
     if resume is not None:
-        print('keep training: ', resume)
+        logger.info('keep training: {}'.format(resume))
         checkpoint = torch.load(resume)
         # checkpoint state dict
         checkpoint_state_dict = checkpoint.pop("optimizer")

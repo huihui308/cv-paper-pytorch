@@ -72,7 +72,7 @@ class Yolov8Trainer(object):
         accumulate = max(1, round(64 / self.args.batch_size))
         print('Grad Accumulate: {}'.format(accumulate))
         self.optimizer_dict['weight_decay'] *= self.args.batch_size * accumulate / 64
-        self.optimizer, self.start_epoch = build_yolo_optimizer(self.optimizer_dict, model, self.args.resume)
+        self.optimizer, self.start_epoch = build_yolo_optimizer(self.logger, self.optimizer_dict, model, self.args.resume)
 
         # ---------------------------- Build LR Scheduler ----------------------------
         self.lr_scheduler, self.lf = build_lr_scheduler(self.lr_schedule_dict, self.optimizer, self.args.max_epoch)
@@ -367,8 +367,9 @@ class Yolov8Trainer(object):
 
 # YOLOX Trainer
 class YoloxTrainer(object):
-    def __init__(self, args, data_cfg, model_cfg, trans_cfg, device, model, criterion, world_size):
+    def __init__(self, logger, args, data_cfg, model_cfg, trans_cfg, device, model, criterion, world_size):
         # ------------------- basic parameters -------------------
+        self.logger = logger
         self.args = args
         self.epoch = 0
         self.best_map = -1.
@@ -426,7 +427,7 @@ class YoloxTrainer(object):
 
         # ---------------------------- Build Model-EMA ----------------------------
         if self.args.ema and distributed_utils.get_rank() in [-1, 0]:
-            print('Build ModelEMA ...')
+            self.logger.info('Build ModelEMA ...')
             self.model_ema = ModelEMA(self.ema_dict, model, self.start_epoch * len(self.train_loader))
         else:
             self.model_ema = None
@@ -443,7 +444,7 @@ class YoloxTrainer(object):
                 # save model of the last mosaic epoch
                 weight_name = '{}_last_mosaic_epoch.pth'.format(self.args.model)
                 checkpoint_path = os.path.join(self.path_to_save, weight_name)
-                print('Saving state of the last Mosaic epoch-{}.'.format(self.epoch + 1))
+                self.logger.info('Saving state of the last Mosaic epoch-{}.'.format(self.epoch + 1))
                 torch.save({'model': model.state_dict(),
                             'mAP': round(self.evaluator.map*100, 1),
                             'optimizer': self.optimizer.state_dict(),
@@ -457,7 +458,7 @@ class YoloxTrainer(object):
                 # save model of the last mosaic epoch
                 weight_name = '{}_last_weak_augment_epoch.pth'.format(self.args.model)
                 checkpoint_path = os.path.join(self.path_to_save, weight_name)
-                print('Saving state of the last weak augment epoch-{}.'.format(self.epoch + 1))
+                self.logger.info('Saving state of the last weak augment epoch-{}.'.format(self.epoch + 1))
                 torch.save({'model': model.state_dict(),
                             'mAP': round(self.evaluator.map*100, 1),
                             'optimizer': self.optimizer.state_dict(),
@@ -486,8 +487,8 @@ class YoloxTrainer(object):
         if distributed_utils.is_main_process():
             # check evaluator
             if self.evaluator is None:
-                print('No evaluator ... save model and go on training.')
-                print('Saving state, epoch: {}'.format(self.epoch + 1))
+                self.logger.info('No evaluator ... save model and go on training.')
+                self.logger.info('Saving state, epoch: {}'.format(self.epoch + 1))
                 weight_name = '{}_no_eval.pth'.format(self.args.model)
                 checkpoint_path = os.path.join(self.path_to_save, weight_name)
                 torch.save({'model': model_eval.state_dict(),
@@ -497,7 +498,7 @@ class YoloxTrainer(object):
                             'args': self.args}, 
                             checkpoint_path)               
             else:
-                print('eval ...')
+                self.logger.info('eval ...')
                 # set eval mode
                 model_eval.trainable = False
                 model_eval.eval()
@@ -512,7 +513,7 @@ class YoloxTrainer(object):
                     # update best-map
                     self.best_map = cur_map
                     # save model
-                    print('Saving state, epoch:', self.epoch + 1)
+                    self.logger.info('Saving state, epoch: {}'.format(self.epoch + 1))
                     weight_name = '{}_best.pth'.format(self.args.model)
                     checkpoint_path = os.path.join(self.path_to_save, weight_name)
                     torch.save({'model': model_eval.state_dict(),
@@ -609,7 +610,7 @@ class YoloxTrainer(object):
                 log += '[size: {}]'.format(img_size)
 
                 # print log infor
-                print(log, flush=True)
+                self.logger.info(log, flush=True)
                 
                 t0 = time.time()
         
@@ -620,34 +621,34 @@ class YoloxTrainer(object):
 
     def check_second_stage(self):
         # set second stage
-        print('============== Second stage of Training ==============')
+        self.logger.info('============== Second stage of Training ==============')
         self.second_stage = True
 
         # close mosaic augmentation
         if self.train_loader.dataset.mosaic_prob > 0.:
-            print(' - Close < Mosaic Augmentation > ...')
+            self.logger.info(' - Close < Mosaic Augmentation > ...')
             self.train_loader.dataset.mosaic_prob = 0.
             self.heavy_eval = True
 
         # close mixup augmentation
         if self.train_loader.dataset.mixup_prob > 0.:
-            print(' - Close < Mixup Augmentation > ...')
+            self.logger.info(' - Close < Mixup Augmentation > ...')
             self.train_loader.dataset.mixup_prob = 0.
             self.heavy_eval = True
 
         # close rotation augmentation
         if 'degrees' in self.trans_cfg.keys() and self.trans_cfg['degrees'] > 0.0:
-            print(' - Close < degress of rotation > ...')
+            self.logger.info(' - Close < degress of rotation > ...')
             self.trans_cfg['degrees'] = 0.0
         if 'shear' in self.trans_cfg.keys() and self.trans_cfg['shear'] > 0.0:
-            print(' - Close < shear of rotation >...')
+            self.logger.info(' - Close < shear of rotation >...')
             self.trans_cfg['shear'] = 0.0
         if 'perspective' in self.trans_cfg.keys() and self.trans_cfg['perspective'] > 0.0:
-            print(' - Close < perspective of rotation > ...')
+            self.logger.info(' - Close < perspective of rotation > ...')
             self.trans_cfg['perspective'] = 0.0
 
         # build a new transform for second stage
-        print(' - Rebuild transforms ...')
+        self.logger.info(' - Rebuild transforms ...')
         self.train_transform, self.trans_cfg = build_transform(
             args=self.args, trans_config=self.trans_cfg, max_stride=self.model_cfg['max_stride'], is_train=True)
         self.train_loader.dataset.transform = self.train_transform
@@ -655,19 +656,19 @@ class YoloxTrainer(object):
 
     def check_third_stage(self):
         # set third stage
-        print('============== Third stage of Training ==============')
+        self.logger.info('============== Third stage of Training ==============')
         self.third_stage = True
 
         # close random affine
         if 'translate' in self.trans_cfg.keys() and self.trans_cfg['translate'] > 0.0:
-            print(' - Close < translate of affine > ...')
+            self.logger.info(' - Close < translate of affine > ...')
             self.trans_cfg['translate'] = 0.0
         if 'scale' in self.trans_cfg.keys():
-            print(' - Close < scale of affine >...')
+            self.logger.info(' - Close < scale of affine >...')
             self.trans_cfg['scale'] = [1.0, 1.0]
 
         # build a new transform for second stage
-        print(' - Rebuild transforms ...')
+        self.logger.info(' - Rebuild transforms ...')
         self.train_transform, self.trans_cfg = build_transform(
             args=self.args, trans_config=self.trans_cfg, max_stride=self.model_cfg['max_stride'], is_train=True)
         self.train_loader.dataset.transform = self.train_transform
@@ -1431,11 +1432,11 @@ class DetrTrainer(object):
 
 
 # Build Trainer
-def build_trainer(args, data_cfg, model_cfg, trans_cfg, device, model, criterion, world_size):
+def build_trainer(logger, args, data_cfg, model_cfg, trans_cfg, device, model, criterion, world_size):
     if model_cfg['trainer_type'] == 'yolov8':
         return Yolov8Trainer(args, data_cfg, model_cfg, trans_cfg, device, model, criterion, world_size)
     elif model_cfg['trainer_type'] == 'yolox':
-        return YoloxTrainer(args, data_cfg, model_cfg, trans_cfg, device, model, criterion, world_size)
+        return YoloxTrainer(logger, args, data_cfg, model_cfg, trans_cfg, device, model, criterion, world_size)
     elif model_cfg['trainer_type'] == 'rtcdet':
         return RTCTrainer(args, data_cfg, model_cfg, trans_cfg, device, model, criterion, world_size)
     elif model_cfg['trainer_type'] == 'detr':
