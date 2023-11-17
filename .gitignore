@@ -108,3 +108,4 @@ data/
 models/
 *.pt
 .vscode/
+desktop.ini
