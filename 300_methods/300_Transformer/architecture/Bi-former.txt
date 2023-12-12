@@ -1,0 +1,431 @@
+Creating model: biformer_tiny
+BiFormer(
+  (downsample_layers): ModuleList(
+    (0): Sequential(
+      (0): Conv2d(3, 32, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
+      (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (2): GELU(approximate=none)
+      (3): Conv2d(32, 64, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
+      (4): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (1): Sequential(
+      (0): Conv2d(64, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
+      (1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (2): Sequential(
+      (0): Conv2d(128, 256, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
+      (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (3): Sequential(
+      (0): Conv2d(256, 512, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
+      (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+  )
+  (stages): ModuleList(
+    (0): Sequential(
+      (0): Block(
+        (pos_embed): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=64)
+        (norm1): LayerNorm((64,), eps=1e-06, elementwise_affine=True)
+        (attn): BiLevelRoutingAttention(
+          (lepe): Conv2d(64, 64, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=64)
+          (router): TopkRouting(
+            (emb): Identity()
+            (routing_act): Softmax(dim=-1)
+          )
+          (kv_gather): KVGather()
+          (qkv): QKVLinear(
+            (qkv): Linear(in_features=64, out_features=192, bias=True)
+          )
+          (wo): Linear(in_features=64, out_features=64, bias=True)
+          (kv_down): Identity()
+          (attn_act): Softmax(dim=-1)
+        )
+        (norm2): LayerNorm((64,), eps=1e-06, elementwise_affine=True)
+        (mlp): Sequential(
+          (0): Linear(in_features=64, out_features=192, bias=True)
+          (1): Identity()
+          (2): GELU(approximate=none)
+          (3): Linear(in_features=192, out_features=64, bias=True)
+        )
+        (drop_path): Identity()
+      )
+      (1): Block(
+        (pos_embed): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=64)
+        (norm1): LayerNorm((64,), eps=1e-06, elementwise_affine=True)
+        (attn): BiLevelRoutingAttention(
+          (lepe): Conv2d(64, 64, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=64)
+          (router): TopkRouting(
+            (emb): Identity()
+            (routing_act): Softmax(dim=-1)
+          )
+          (kv_gather): KVGather()
+          (qkv): QKVLinear(
+            (qkv): Linear(in_features=64, out_features=192, bias=True)
+          )
+          (wo): Linear(in_features=64, out_features=64, bias=True)
+          (kv_down): Identity()
+          (attn_act): Softmax(dim=-1)
+        )
+        (norm2): LayerNorm((64,), eps=1e-06, elementwise_affine=True)
+        (mlp): Sequential(
+          (0): Linear(in_features=64, out_features=192, bias=True)
+          (1): Identity()
+          (2): GELU(approximate=none)
+          (3): Linear(in_features=192, out_features=64, bias=True)
+        )
+        (drop_path): DropPath(drop_prob=0.008)
+      )
+    )
+    (1): Sequential(
+      (0): Block(
+        (pos_embed): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=128)
+        (norm1): LayerNorm((128,), eps=1e-06, elementwise_affine=True)
+        (attn): BiLevelRoutingAttention(
+          (lepe): Conv2d(128, 128, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=128)
+          (router): TopkRouting(
+            (emb): Identity()
+            (routing_act): Softmax(dim=-1)
+          )
+          (kv_gather): KVGather()
+          (qkv): QKVLinear(
+            (qkv): Linear(in_features=128, out_features=384, bias=True)
+          )
+          (wo): Linear(in_features=128, out_features=128, bias=True)
+          (kv_down): Identity()
+          (attn_act): Softmax(dim=-1)
+        )
+        (norm2): LayerNorm((128,), eps=1e-06, elementwise_affine=True)
+        (mlp): Sequential(
+          (0): Linear(in_features=128, out_features=384, bias=True)
+          (1): Identity()
+          (2): GELU(approximate=none)
+          (3): Linear(in_features=384, out_features=128, bias=True)
+        )
+        (drop_path): DropPath(drop_prob=0.015)
+      )
+      (1): Block(
+        (pos_embed): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=128)
+        (norm1): LayerNorm((128,), eps=1e-06, elementwise_affine=True)
+        (attn): BiLevelRoutingAttention(
+          (lepe): Conv2d(128, 128, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=128)
+          (router): TopkRouting(
+            (emb): Identity()
+            (routing_act): Softmax(dim=-1)
+          )
+          (kv_gather): KVGather()
+          (qkv): QKVLinear(
+            (qkv): Linear(in_features=128, out_features=384, bias=True)
+          )
+          (wo): Linear(in_features=128, out_features=128, bias=True)
+          (kv_down): Identity()
+          (attn_act): Softmax(dim=-1)
+        )
+        (norm2): LayerNorm((128,), eps=1e-06, elementwise_affine=True)
+        (mlp): Sequential(
+          (0): Linear(in_features=128, out_features=384, bias=True)
+          (1): Identity()
+          (2): GELU(approximate=none)
+          (3): Linear(in_features=384, out_features=128, bias=True)
+        )
+        (drop_path): DropPath(drop_prob=0.023)
+      )
+    )
+    (2): Sequential(
+      (0): Block(
+        (pos_embed): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=256)
+        (norm1): LayerNorm((256,), eps=1e-06, elementwise_affine=True)
+        (attn): BiLevelRoutingAttention(
+          (lepe): Conv2d(256, 256, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=256)
+          (router): TopkRouting(
+            (emb): Identity()
+            (routing_act): Softmax(dim=-1)
+          )
+          (kv_gather): KVGather()
+          (qkv): QKVLinear(
+            (qkv): Linear(in_features=256, out_features=768, bias=True)
+          )
+          (wo): Linear(in_features=256, out_features=256, bias=True)
+          (kv_down): Identity()
+          (attn_act): Softmax(dim=-1)
+        )
+        (norm2): LayerNorm((256,), eps=1e-06, elementwise_affine=True)
+        (mlp): Sequential(
+          (0): Linear(in_features=256, out_features=768, bias=True)
+          (1): Identity()
+          (2): GELU(approximate=none)
+          (3): Linear(in_features=768, out_features=256, bias=True)
+        )
+        (drop_path): DropPath(drop_prob=0.031)
+      )
+      (1): Block(
+        (pos_embed): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=256)
+        (norm1): LayerNorm((256,), eps=1e-06, elementwise_affine=True)
+        (attn): BiLevelRoutingAttention(
+          (lepe): Conv2d(256, 256, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=256)
+          (router): TopkRouting(
+            (emb): Identity()
+            (routing_act): Softmax(dim=-1)
+          )
+          (kv_gather): KVGather()
+          (qkv): QKVLinear(
+            (qkv): Linear(in_features=256, out_features=768, bias=True)
+          )
+          (wo): Linear(in_features=256, out_features=256, bias=True)
+          (kv_down): Identity()
+          (attn_act): Softmax(dim=-1)
+        )
+        (norm2): LayerNorm((256,), eps=1e-06, elementwise_affine=True)
+        (mlp): Sequential(
+          (0): Linear(in_features=256, out_features=768, bias=True)
+          (1): Identity()
+          (2): GELU(approximate=none)
+          (3): Linear(in_features=768, out_features=256, bias=True)
+        )
+        (drop_path): DropPath(drop_prob=0.038)
+      )
+      (2): Block(
+        (pos_embed): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=256)
+        (norm1): LayerNorm((256,), eps=1e-06, elementwise_affine=True)
+        (attn): BiLevelRoutingAttention(
+          (lepe): Conv2d(256, 256, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=256)
+          (router): TopkRouting(
+            (emb): Identity()
+            (routing_act): Softmax(dim=-1)
+          )
+          (kv_gather): KVGather()
+          (qkv): QKVLinear(
+            (qkv): Linear(in_features=256, out_features=768, bias=True)
+          )
+          (wo): Linear(in_features=256, out_features=256, bias=True)
+          (kv_down): Identity()
+          (attn_act): Softmax(dim=-1)
+        )
+        (norm2): LayerNorm((256,), eps=1e-06, elementwise_affine=True)
+        (mlp): Sequential(
+          (0): Linear(in_features=256, out_features=768, bias=True)
+          (1): Identity()
+          (2): GELU(approximate=none)
+          (3): Linear(in_features=768, out_features=256, bias=True)
+        )
+        (drop_path): DropPath(drop_prob=0.046)
+      )
+      (3): Block(
+        (pos_embed): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=256)
+        (norm1): LayerNorm((256,), eps=1e-06, elementwise_affine=True)
+        (attn): BiLevelRoutingAttention(
+          (lepe): Conv2d(256, 256, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=256)
+          (router): TopkRouting(
+            (emb): Identity()
+            (routing_act): Softmax(dim=-1)
+          )
+          (kv_gather): KVGather()
+          (qkv): QKVLinear(
+            (qkv): Linear(in_features=256, out_features=768, bias=True)
+          )
+          (wo): Linear(in_features=256, out_features=256, bias=True)
+          (kv_down): Identity()
+          (attn_act): Softmax(dim=-1)
+        )
+        (norm2): LayerNorm((256,), eps=1e-06, elementwise_affine=True)
+        (mlp): Sequential(
+          (0): Linear(in_features=256, out_features=768, bias=True)
+          (1): Identity()
+          (2): GELU(approximate=none)
+          (3): Linear(in_features=768, out_features=256, bias=True)
+        )
+        (drop_path): DropPath(drop_prob=0.054)
+      )
+      (4): Block(
+        (pos_embed): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=256)
+        (norm1): LayerNorm((256,), eps=1e-06, elementwise_affine=True)
+        (attn): BiLevelRoutingAttention(
+          (lepe): Conv2d(256, 256, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=256)
+          (router): TopkRouting(
+            (emb): Identity()
+            (routing_act): Softmax(dim=-1)
+          )
+          (kv_gather): KVGather()
+          (qkv): QKVLinear(
+            (qkv): Linear(in_features=256, out_features=768, bias=True)
+          )
+          (wo): Linear(in_features=256, out_features=256, bias=True)
+          (kv_down): Identity()
+          (attn_act): Softmax(dim=-1)
+        )
+        (norm2): LayerNorm((256,), eps=1e-06, elementwise_affine=True)
+        (mlp): Sequential(
+          (0): Linear(in_features=256, out_features=768, bias=True)
+          (1): Identity()
+          (2): GELU(approximate=none)
+          (3): Linear(in_features=768, out_features=256, bias=True)
+        )
+        (drop_path): DropPath(drop_prob=0.062)
+      )
+      (5): Block(
+        (pos_embed): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=256)
+        (norm1): LayerNorm((256,), eps=1e-06, elementwise_affine=True)
+        (attn): BiLevelRoutingAttention(
+          (lepe): Conv2d(256, 256, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=256)
+          (router): TopkRouting(
+            (emb): Identity()
+            (routing_act): Softmax(dim=-1)
+          )
+          (kv_gather): KVGather()
+          (qkv): QKVLinear(
+            (qkv): Linear(in_features=256, out_features=768, bias=True)
+          )
+          (wo): Linear(in_features=256, out_features=256, bias=True)
+          (kv_down): Identity()
+          (attn_act): Softmax(dim=-1)
+        )
+        (norm2): LayerNorm((256,), eps=1e-06, elementwise_affine=True)
+        (mlp): Sequential(
+          (0): Linear(in_features=256, out_features=768, bias=True)
+          (1): Identity()
+          (2): GELU(approximate=none)
+          (3): Linear(in_features=768, out_features=256, bias=True)
+        )
+        (drop_path): DropPath(drop_prob=0.069)
+      )
+      (6): Block(
+        (pos_embed): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=256)
+        (norm1): LayerNorm((256,), eps=1e-06, elementwise_affine=True)
+        (attn): BiLevelRoutingAttention(
+          (lepe): Conv2d(256, 256, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=256)
+          (router): TopkRouting(
+            (emb): Identity()
+            (routing_act): Softmax(dim=-1)
+          )
+          (kv_gather): KVGather()
+          (qkv): QKVLinear(
+            (qkv): Linear(in_features=256, out_features=768, bias=True)
+          )
+          (wo): Linear(in_features=256, out_features=256, bias=True)
+          (kv_down): Identity()
+          (attn_act): Softmax(dim=-1)
+        )
+        (norm2): LayerNorm((256,), eps=1e-06, elementwise_affine=True)
+        (mlp): Sequential(
+          (0): Linear(in_features=256, out_features=768, bias=True)
+          (1): Identity()
+          (2): GELU(approximate=none)
+          (3): Linear(in_features=768, out_features=256, bias=True)
+        )
+        (drop_path): DropPath(drop_prob=0.077)
+      )
+      (7): Block(
+        (pos_embed): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=256)
+        (norm1): LayerNorm((256,), eps=1e-06, elementwise_affine=True)
+        (attn): BiLevelRoutingAttention(
+          (lepe): Conv2d(256, 256, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=256)
+          (router): TopkRouting(
+            (emb): Identity()
+            (routing_act): Softmax(dim=-1)
+          )
+          (kv_gather): KVGather()
+          (qkv): QKVLinear(
+            (qkv): Linear(in_features=256, out_features=768, bias=True)
+          )
+          (wo): Linear(in_features=256, out_features=256, bias=True)
+          (kv_down): Identity()
+          (attn_act): Softmax(dim=-1)
+        )
+        (norm2): LayerNorm((256,), eps=1e-06, elementwise_affine=True)
+        (mlp): Sequential(
+          (0): Linear(in_features=256, out_features=768, bias=True)
+          (1): Identity()
+          (2): GELU(approximate=none)
+          (3): Linear(in_features=768, out_features=256, bias=True)
+        )
+        (drop_path): DropPath(drop_prob=0.085)
+      )
+    )
+    (3): Sequential(
+      (0): Block(
+        (pos_embed): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=512)
+        (norm1): LayerNorm((512,), eps=1e-06, elementwise_affine=True)
+        (attn): AttentionLePE(
+          (qkv): Linear(in_features=512, out_features=1536, bias=False)
+          (attn_drop): Dropout(p=0.0, inplace=False)
+          (proj): Linear(in_features=512, out_features=512, bias=True)
+          (proj_drop): Dropout(p=0.0, inplace=False)
+          (lepe): Conv2d(512, 512, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=512)
+        )
+        (norm2): LayerNorm((512,), eps=1e-06, elementwise_affine=True)
+        (mlp): Sequential(
+          (0): Linear(in_features=512, out_features=1536, bias=True)
+          (1): Identity()
+          (2): GELU(approximate=none)
+          (3): Linear(in_features=1536, out_features=512, bias=True)
+        )
+        (drop_path): DropPath(drop_prob=0.092)
+      )
+      (1): Block(
+        (pos_embed): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=512)
+        (norm1): LayerNorm((512,), eps=1e-06, elementwise_affine=True)
+        (attn): AttentionLePE(
+          (qkv): Linear(in_features=512, out_features=1536, bias=False)
+          (attn_drop): Dropout(p=0.0, inplace=False)
+          (proj): Linear(in_features=512, out_features=512, bias=True)
+          (proj_drop): Dropout(p=0.0, inplace=False)
+          (lepe): Conv2d(512, 512, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=512)
+        )
+        (norm2): LayerNorm((512,), eps=1e-06, elementwise_affine=True)
+        (mlp): Sequential(
+          (0): Linear(in_features=512, out_features=1536, bias=True)
+          (1): Identity()
+          (2): GELU(approximate=none)
+          (3): Linear(in_features=1536, out_features=512, bias=True)
+        )
+        (drop_path): DropPath(drop_prob=0.100)
+      )
+    )
+  )
+  (norm): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (pre_logits): Identity()
+  (head): Linear(in_features=512, out_features=23, bias=True)
+)
+| module                   | #parameters or shape   | #flops     |
+|:-------------------------|:-----------------------|:-----------|
+| model                    | 12.642M                | 2.228G     |
+|  downsample_layers       |  1.571M                |  0.244G    |
+|   downsample_layers.0    |   19.584K              |   69.845M  |
+|    downsample_layers.0.0 |    0.896K              |    10.838M |
+|    downsample_layers.0.1 |    64                  |    0.803M  |
+|    downsample_layers.0.3 |    18.496K             |    57.803M |
+|    downsample_layers.0.4 |    0.128K              |    0.401M  |
+|   downsample_layers.1    |   74.112K              |   58.003M  |
+|    downsample_layers.1.0 |    73.856K             |    57.803M |
+|    downsample_layers.1.1 |    0.256K              |    0.201M  |
+|   downsample_layers.2    |   0.296M               |   57.903M  |
+|    downsample_layers.2.0 |    0.295M              |    57.803M |
+|    downsample_layers.2.1 |    0.512K              |    0.1M    |
+|   downsample_layers.3    |   1.181M               |   57.853M  |
+|    downsample_layers.3.0 |    1.18M               |    57.803M |
+|    downsample_layers.3.1 |    1.024K              |    50.176K |
+|  stages                  |  11.058M               |  1.984G    |
+|   stages.0               |   88.064K              |   0.326G   |
+|    stages.0.0            |    44.032K             |    0.163G  |
+|    stages.0.1            |    44.032K             |    0.163G  |
+|   stages.1               |   0.34M                |   0.292G   |
+|    stages.1.0            |    0.17M               |    0.146G  |
+|    stages.1.1            |    0.17M               |    0.146G  |
+|   stages.2               |   5.341M               |   1.102G   |
+|    stages.2.0            |    0.668M              |    0.138G  |
+|    stages.2.1            |    0.668M              |    0.138G  |
+|    stages.2.2            |    0.668M              |    0.138G  |
+|    stages.2.3            |    0.668M              |    0.138G  |
+|    stages.2.4            |    0.668M              |    0.138G  |
+|    stages.2.5            |    0.668M              |    0.138G  |
+|    stages.2.6            |    0.668M              |    0.138G  |
+|    stages.2.7            |    0.668M              |    0.138G  |
+|   stages.3               |   5.289M               |   0.264G   |
+|    stages.3.0            |    2.644M              |    0.132G  |
+|    stages.3.1            |    2.644M              |    0.132G  |
+|  norm                    |  1.024K                |  50.176K   |
+|   norm.weight            |   (512,)               |            |
+|   norm.bias              |   (512,)               |            |
+|  head                    |  11.799K               |  11.776K   |
+|   head.weight            |   (23, 512)            |            |
+|   head.bias              |   (23,)                |            |
+number of params: 12,641,559
